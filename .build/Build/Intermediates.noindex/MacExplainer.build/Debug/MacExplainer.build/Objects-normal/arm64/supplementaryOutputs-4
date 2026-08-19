@@ -1,0 +1,23 @@
+{
+  "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/MacExplainer/Presentation/AdvancedView.swift" : {
+    "const-values" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/AdvancedView.swiftconstvalues",
+    "dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/AdvancedView.d",
+    "diagnostics" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/AdvancedView.dia",
+    "object" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/AdvancedView.o",
+    "swift-dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/AdvancedView.swiftdeps"
+  },
+  "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/MacExplainer/Presentation/AppsView.swift" : {
+    "const-values" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/AppsView.swiftconstvalues",
+    "dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/AppsView.d",
+    "diagnostics" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/AppsView.dia",
+    "object" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/AppsView.o",
+    "swift-dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/AppsView.swiftdeps"
+  },
+  "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/MacExplainer/Presentation/Formatters.swift" : {
+    "const-values" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/Formatters.swiftconstvalues",
+    "dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/Formatters.d",
+    "diagnostics" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/Formatters.dia",
+    "object" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/Formatters.o",
+    "swift-dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/Formatters.swiftdeps"
+  }
+}

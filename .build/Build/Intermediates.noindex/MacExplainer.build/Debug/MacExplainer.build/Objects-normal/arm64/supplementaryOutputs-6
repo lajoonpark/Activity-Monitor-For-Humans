@@ -1,0 +1,23 @@
+{
+  "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/MacExplainer/Presentation/SettingsView.swift" : {
+    "const-values" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/SettingsView.swiftconstvalues",
+    "dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/SettingsView.d",
+    "diagnostics" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/SettingsView.dia",
+    "object" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/SettingsView.o",
+    "swift-dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/SettingsView.swiftdeps"
+  },
+  "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/MacExplainer/Settings/AppPreferences.swift" : {
+    "const-values" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/AppPreferences.swiftconstvalues",
+    "dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/AppPreferences.d",
+    "diagnostics" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/AppPreferences.dia",
+    "object" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/AppPreferences.o",
+    "swift-dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/AppPreferences.swiftdeps"
+  },
+  "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/MacExplainer/Settings/LoginItemService.swift" : {
+    "const-values" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/LoginItemService.swiftconstvalues",
+    "dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/LoginItemService.d",
+    "diagnostics" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/LoginItemService.dia",
+    "object" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/LoginItemService.o",
+    "swift-dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/LoginItemService.swiftdeps"
+  }
+}

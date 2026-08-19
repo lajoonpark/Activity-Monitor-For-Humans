@@ -1,0 +1,23 @@
+{
+  "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/MacExplainer/Interpretation/ExplanationGenerator.swift" : {
+    "const-values" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/ExplanationGenerator.swiftconstvalues",
+    "dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/ExplanationGenerator.d",
+    "diagnostics" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/ExplanationGenerator.dia",
+    "object" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/ExplanationGenerator.o",
+    "swift-dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/ExplanationGenerator.swiftdeps"
+  },
+  "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/MacExplainer/Interpretation/HealthInterpreter.swift" : {
+    "const-values" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/HealthInterpreter.swiftconstvalues",
+    "dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/HealthInterpreter.d",
+    "diagnostics" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/HealthInterpreter.dia",
+    "object" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/HealthInterpreter.o",
+    "swift-dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/HealthInterpreter.swiftdeps"
+  },
+  "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/MacExplainer/Interpretation/HealthScorer.swift" : {
+    "const-values" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/HealthScorer.swiftconstvalues",
+    "dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/HealthScorer.d",
+    "diagnostics" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/HealthScorer.dia",
+    "object" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/HealthScorer.o",
+    "swift-dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/HealthScorer.swiftdeps"
+  }
+}

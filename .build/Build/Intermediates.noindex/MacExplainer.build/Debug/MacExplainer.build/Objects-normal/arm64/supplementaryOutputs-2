@@ -1,0 +1,23 @@
+{
+  "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/MacExplainer/Collection/ProcessMetricsCollector.swift" : {
+    "const-values" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/ProcessMetricsCollector.swiftconstvalues",
+    "dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/ProcessMetricsCollector.d",
+    "diagnostics" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/ProcessMetricsCollector.dia",
+    "object" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/ProcessMetricsCollector.o",
+    "swift-dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/ProcessMetricsCollector.swiftdeps"
+  },
+  "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/MacExplainer/Collection/Sysctl.swift" : {
+    "const-values" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/Sysctl.swiftconstvalues",
+    "dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/Sysctl.d",
+    "diagnostics" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/Sysctl.dia",
+    "object" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/Sysctl.o",
+    "swift-dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/Sysctl.swiftdeps"
+  },
+  "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/MacExplainer/Collection/SystemMetricsCollector.swift" : {
+    "const-values" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/SystemMetricsCollector.swiftconstvalues",
+    "dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/SystemMetricsCollector.d",
+    "diagnostics" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/SystemMetricsCollector.dia",
+    "object" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/SystemMetricsCollector.o",
+    "swift-dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/SystemMetricsCollector.swiftdeps"
+  }
+}

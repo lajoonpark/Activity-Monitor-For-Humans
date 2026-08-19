@@ -1,0 +1,56 @@
+{
+  "source": "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/MacExplainer/MacExplainerApp.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Overview",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 7
+        }
+      },
+      {
+        "comment": "",
+        "key": "Apps",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 9
+        }
+      },
+      {
+        "comment": "",
+        "key": "History",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 11
+        }
+      },
+      {
+        "comment": "",
+        "key": "Advanced",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 13
+        }
+      },
+      {
+        "comment": "",
+        "key": "Settings",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 15
+        }
+      },
+      {
+        "comment": "",
+        "key": "MacExplainer",
+        "location": {
+          "startingColumn": 21,
+          "startingLine": 33
+        }
+      }
+    ]
+  },
+  "version": 1
+}

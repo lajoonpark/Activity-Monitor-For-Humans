@@ -1,0 +1,96 @@
+{
+  "source": "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/MacExplainer/Presentation/SettingsView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Settings",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 50
+        }
+      },
+      {
+        "comment": "",
+        "key": "Start at login",
+        "location": {
+          "startingColumn": 16,
+          "startingLine": 51
+        }
+      },
+      {
+        "comment": "",
+        "key": "Monitoring",
+        "location": {
+          "startingColumn": 21,
+          "startingLine": 10
+        }
+      },
+      {
+        "comment": "",
+        "key": "Menu bar",
+        "location": {
+          "startingColumn": 21,
+          "startingLine": 32
+        }
+      },
+      {
+        "comment": "",
+        "key": "Start at login",
+        "location": {
+          "startingColumn": 21,
+          "startingLine": 39
+        }
+      },
+      {
+        "comment": "",
+        "key": "Sample every",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 11
+        }
+      },
+      {
+        "comment": "",
+        "key": "History",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 22
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld %@",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 19
+        }
+      },
+      {
+        "comment": "",
+        "key": "Show menu bar icon",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 33
+        }
+      },
+      {
+        "comment": "",
+        "key": "Open at login",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 40
+        }
+      },
+      {
+        "comment": "",
+        "key": "OK",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 55
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -1,0 +1,23 @@
+{
+  "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/MacExplainer/Presentation/HistoryView.swift" : {
+    "const-values" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/HistoryView.swiftconstvalues",
+    "dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/HistoryView.d",
+    "diagnostics" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/HistoryView.dia",
+    "object" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/HistoryView.o",
+    "swift-dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/HistoryView.swiftdeps"
+  },
+  "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/MacExplainer/Presentation/MenuBarLabel.swift" : {
+    "const-values" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/MenuBarLabel.swiftconstvalues",
+    "dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/MenuBarLabel.d",
+    "diagnostics" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/MenuBarLabel.dia",
+    "object" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/MenuBarLabel.o",
+    "swift-dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/MenuBarLabel.swiftdeps"
+  },
+  "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/MacExplainer/Presentation/OverviewView.swift" : {
+    "const-values" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/OverviewView.swiftconstvalues",
+    "dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/OverviewView.d",
+    "diagnostics" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/OverviewView.dia",
+    "object" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/OverviewView.o",
+    "swift-dependencies" : "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/.build/Build/Intermediates.noindex/MacExplainer.build/Debug/MacExplainer.build/Objects-normal/arm64/OverviewView.swiftdeps"
+  }
+}

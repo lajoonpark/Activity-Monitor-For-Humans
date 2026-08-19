@@ -1,0 +1,40 @@
+{
+  "source": "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/MacExplainer/Presentation/AppsView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Apps",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 35
+        }
+      },
+      {
+        "comment": "",
+        "key": "App",
+        "location": {
+          "startingColumn": 25,
+          "startingLine": 9
+        }
+      },
+      {
+        "comment": "",
+        "key": "CPU %",
+        "location": {
+          "startingColumn": 25,
+          "startingLine": 23
+        }
+      },
+      {
+        "comment": "",
+        "key": "Memory",
+        "location": {
+          "startingColumn": 25,
+          "startingLine": 29
+        }
+      }
+    ]
+  },
+  "version": 1
+}

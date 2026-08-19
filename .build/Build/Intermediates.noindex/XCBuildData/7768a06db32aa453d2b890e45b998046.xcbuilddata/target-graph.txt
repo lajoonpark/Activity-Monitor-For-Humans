@@ -1,0 +1,4 @@
+Target dependency graph (2 targets)
+Target 'MacExplainerTests' in project 'MacExplainer'
+➜ Explicit dependency on target 'MacExplainer' in project 'MacExplainer'
+Target 'MacExplainer' in project 'MacExplainer' (no dependencies)

@@ -1,0 +1,72 @@
+{
+  "source": "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/MacExplainer/Presentation/AdvancedView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Advanced",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 18
+        }
+      },
+      {
+        "comment": "",
+        "key": "Measuring…",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 13
+        }
+      },
+      {
+        "comment": "",
+        "key": "Processes",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 83
+        }
+      },
+      {
+        "comment": "",
+        "key": "PID",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 86
+        }
+      },
+      {
+        "comment": "",
+        "key": "Name",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 91
+        }
+      },
+      {
+        "comment": "",
+        "key": "CPU %",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 94
+        }
+      },
+      {
+        "comment": "",
+        "key": "RSS",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 98
+        }
+      },
+      {
+        "comment": "",
+        "key": "%d",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 87
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -1,0 +1,48 @@
+{
+  "source": "/Users/lajoonpark/VS repos/Activity-Monitor-For-Humans/MacExplainer/Presentation/OverviewView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "The monitor has not started yet.",
+        "location": {
+          "startingColumn": 111,
+          "startingLine": 12
+        }
+      },
+      {
+        "comment": "",
+        "key": "Not running",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 12
+        }
+      },
+      {
+        "comment": "",
+        "key": "Measuring…",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 14
+        }
+      },
+      {
+        "comment": "",
+        "key": "Top apps",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 67
+        }
+      },
+      {
+        "comment": "",
+        "key": "",
+        "location": {
+          "startingColumn": 15,
+          "startingLine": 160
+        }
+      }
+    ]
+  },
+  "version": 1
+}
