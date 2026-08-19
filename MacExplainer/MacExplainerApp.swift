@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 var isRunningUnitTests: Bool {
@@ -22,6 +23,9 @@ struct ContentView: View {
                     .tabItem { Label("Settings", systemImage: "gearshape") }
             }
             .frame(minWidth: 720, minHeight: 480)
+            .onAppear {
+                NSApp.activate(ignoringOtherApps: true)
+            }
         }
     }
 }
@@ -33,8 +37,12 @@ struct MacExplainerApp: App {
 
     init() {
         let preferences = AppPreferences()
+        let session = AppSession(preferences: preferences)
         _preferences = State(initialValue: preferences)
-        _session = State(initialValue: AppSession(preferences: preferences))
+        _session = State(initialValue: session)
+        if !isRunningUnitTests {
+            session.start()
+        }
     }
 
     var body: some Scene {
@@ -42,7 +50,6 @@ struct MacExplainerApp: App {
             ContentView()
                 .environment(session)
                 .environment(preferences)
-                .task { if !isRunningUnitTests { session.start() } }
         }
         .defaultSize(width: 920, height: 640)
 
