@@ -3,10 +3,25 @@ import SwiftUI
 
 struct MenuBarLabel: View {
     var session: AppSession
+    var preferences: AppPreferences
 
     var body: some View {
-        Image(systemName: "waveform.path.ecg")
-            .foregroundStyle(levelColor)
+        HStack(spacing: 4) {
+            Image(systemName: "waveform.path.ecg")
+                .foregroundStyle(levelColor)
+            if preferences.menuBarMetrics == .inMenuBar, !metricsLine.isEmpty {
+                Text(metricsLine)
+                    .font(.caption2)
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private var metricsLine: String {
+        guard let snapshot = session.current else { return "" }
+        let used = snapshot.memory.usedBytes
+        return "\(Formatters.percent(snapshot.cpu.totalUsedPercent)) \(Formatters.bytes(used))"
     }
 
     private var levelColor: Color {
@@ -38,6 +53,12 @@ struct MenuBarContent: View {
             } else if session.state != .active {
                 Text("Measuring\u{2026}")
                     .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
+            if let snapshot = session.current {
+                Text("CPU \(Formatters.percent(snapshot.cpu.totalUsedPercent))  \u{00B7}  RAM about \(Formatters.bytes(snapshot.memory.usedBytes))")
+                    .font(.callout)
+                    .monospacedDigit()
                     .foregroundStyle(.secondary)
             }
             Divider().padding(.vertical, 4)

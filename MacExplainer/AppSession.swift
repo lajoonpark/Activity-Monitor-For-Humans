@@ -13,6 +13,7 @@ final class AppSession {
     var state: MeasurementState = .idle
     var current: SystemSnapshot?
     var processes: [ProcessSnapshot] = []
+    var appGroups: [ProcessGroupStats] = []
     var interpreted: InterpretedHealth?
     var historyPoints: [HistoryPoint] = []
     var selectedWindow: HistoryWindow = .thirtyMinutes
@@ -24,6 +25,14 @@ final class AppSession {
     init(preferences: AppPreferences) {
         self.preferences = preferences
         self.selectedWindow = preferences.historyWindow
+    }
+
+    var cpuPercent: Double {
+        current?.cpu.totalUsedPercent ?? 0
+    }
+
+    var usedBytes: UInt64 {
+        current?.memory.usedBytes ?? 0
     }
 
     func start() {
@@ -54,7 +63,8 @@ final class AppSession {
 
     private func publish(_ batch: MetricsBatch) {
         current = batch.snapshot
-        processes = batch.processes
+        processes = ProcessMetricsCollector.applyingAppMetadata(to: batch.processes)
+        appGroups = ProcessGrouping.buildGroups(from: processes)
         interpreted = batch.interpreted
         historyPoints = engine.history(for: selectedWindow)
         state = .active
@@ -114,10 +124,15 @@ private final class MetricsEngine: @unchecked Sendable {
         isCollecting = true
         defer { isCollecting = false }
 
-        guard let cpu = systemCollector.cpuCounters() else { lastSampleTime = now; return }
-        guard let disk = ioCollector.diskRate(at: now) else { lastSampleTime = now; return }
-        guard let network = ioCollector.networkRate(at: now) else { lastSampleTime = now; return }
-        guard let processesLimit = processCollector.processSnapshots(now: now) else { lastSampleTime = now; return }
+        let cpu = systemCollector.cpuCounters()
+        let disk = ioCollector.diskRate(at: now)
+        let network = ioCollector.networkRate(at: now)
+        let processesLimit = processCollector.processSnapshots(now: now)
+
+        guard let cpu, let disk, let network, let processesLimit else {
+            lastSampleTime = now
+            return
+        }
 
         let memory = systemCollector.memoryCounters()
         let power = powerCollector.read()

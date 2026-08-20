@@ -58,7 +58,7 @@ struct OverviewView: View {
     private var cpuMemoryLine: String {
         guard let snapshot = session.current else { return "" }
         let cpu = Formatters.percent(snapshot.cpu.totalUsedPercent)
-        let used = Formatters.bytes(snapshot.memory.activeBytes + snapshot.memory.wiredBytes + snapshot.memory.compressedBytes)
+        let used = Formatters.bytes(snapshot.memory.usedBytes)
         return "CPU \(cpu)  \u{00B7}  About \(used) of RAM in use"
     }
 
@@ -66,16 +66,21 @@ struct OverviewView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Top apps")
                 .font(.headline)
-            ForEach(session.processes.sorted { $0.cpuPercent > $1.cpuPercent }.prefix(5)) { process in
+            ForEach(session.appGroups.sorted { $0.cpuPercent > $1.cpuPercent }.prefix(5)) { group in
                 HStack(spacing: 8) {
-                    ProcessIconView(pid: process.id)
-                    Text(process.name)
-                        .lineLimit(1)
+                    ProcessIconView(pid: group.pid ?? -1)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(group.name)
+                            .lineLimit(1)
+                        Text("\(group.processCount) processes")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
                     Spacer()
-                    Text(Formatters.percent(process.cpuPercent))
+                    Text(Formatters.percent(group.cpuPercent))
                         .monospacedDigit()
                         .foregroundStyle(.secondary)
-                    Text(Formatters.bytes(process.residentBytes))
+                    Text(Formatters.bytes(group.residentBytes))
                         .monospacedDigit()
                         .foregroundStyle(.secondary)
                 }

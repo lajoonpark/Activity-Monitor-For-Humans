@@ -15,6 +15,8 @@ struct ContentView: View {
                     .tabItem { Label("Overview", systemImage: "waveform.path.ecg") }
                 AppsView()
                     .tabItem { Label("Apps", systemImage: "square.grid.2x2") }
+                EnergyView()
+                    .tabItem { Label("Energy", systemImage: "bolt") }
                 HistoryView()
                     .tabItem { Label("History", systemImage: "chart.line.uptrend.xyaxis") }
                 AdvancedView()
@@ -58,7 +60,7 @@ struct MacExplainerApp: App {
                 .environment(session)
                 .environment(preferences)
         } label: {
-            MenuBarLabel(session: session)
+            MenuBarLabel(session: session, preferences: preferences)
         }
         .menuBarExtraStyle(.window)
     }

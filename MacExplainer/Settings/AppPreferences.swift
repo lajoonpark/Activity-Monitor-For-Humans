@@ -29,6 +29,12 @@ final class AppPreferences {
         }
     }
 
+    var menuBarMetrics: MenuBarMetricsStyle {
+        didSet {
+            UserDefaults.standard.set(menuBarMetrics.rawValue, forKey: Keys.menuBarMetrics)
+        }
+    }
+
     init() {
         let defaults = UserDefaults.standard
         let storedInterval = defaults.double(forKey: Keys.sampleInterval)
@@ -41,6 +47,7 @@ final class AppPreferences {
             showsMenuBarExtra = true
         }
         startsAtLogin = defaults.bool(forKey: Keys.startsAtLogin)
+        menuBarMetrics = MenuBarMetricsStyle(rawValue: defaults.string(forKey: Keys.menuBarMetrics) ?? "") ?? .popupOnly
     }
 
     private enum Keys {
@@ -48,5 +55,11 @@ final class AppPreferences {
         static let historyWindow = "preferences.historyWindow"
         static let showsMenuBarExtra = "preferences.showsMenuBarExtra"
         static let startsAtLogin = "preferences.startsAtLogin"
+        static let menuBarMetrics = "preferences.menuBarMetrics"
     }
+}
+
+enum MenuBarMetricsStyle: String, Sendable {
+    case popupOnly
+    case inMenuBar
 }

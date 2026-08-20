@@ -32,6 +32,16 @@ enum Formatters {
     static func rate(_ bytesPerSecond: UInt64) -> String {
         bytes(bytesPerSecond) + "/s"
     }
+
+    /// Honest watts estimate: energy delta (nanojoules) divided by the sample
+    /// interval in seconds. Never an "Energy Impact" number.
+    static func watts(_ deltaNanojoules: UInt64?, interval: TimeInterval) -> String {
+        guard let deltaNanojoules, interval > 0 else { return "—" }
+        let joules = Double(deltaNanojoules) / 1_000_000_000
+        let watts = joules / interval
+        if watts == 0 { return "0 W" }
+        return "about \(String(format: "%.1f", watts)) W"
+    }
 }
 
 extension HealthLevel {

@@ -34,6 +34,13 @@ struct SettingsView: View {
                     get: { preferences.showsMenuBarExtra },
                     set: { preferences.showsMenuBarExtra = $0 }
                 ))
+                Picker("Menu bar metrics", selection: Binding(
+                    get: { preferences.menuBarMetrics },
+                    set: { preferences.menuBarMetrics = $0 }
+                )) {
+                    Text("In pop-up only").tag(MenuBarMetricsStyle.popupOnly)
+                    Text("In menu bar").tag(MenuBarMetricsStyle.inMenuBar)
+                }
             }
 
             Section("Start at login") {

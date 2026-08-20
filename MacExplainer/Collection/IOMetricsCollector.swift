@@ -5,17 +5,18 @@ import IOKit
 final class IOMetricsCollector: @unchecked Sendable {
     private var previousDiskTotal: UInt64?
     private var previousNetworkTotal: (inbound: UInt64, outbound: UInt64)?
-    private var previousTime: Date?
+    private var previousDiskTime: Date?
+    private var previousNetworkTime: Date?
 
     /// Returns nil on the first call so the caller can discard the baseline sample.
     func diskRate(at now: Date) -> IORate? {
         let current = Self.readDiskBytesTotal()
         defer {
             previousDiskTotal = current
-            previousTime = now
+            previousDiskTime = now
         }
-        guard let previous = previousDiskTotal, let previousTime else { return nil }
-        let interval = now.timeIntervalSince(previousTime)
+        guard let previous = previousDiskTotal, let previousDiskTime else { return nil }
+        let interval = now.timeIntervalSince(previousDiskTime)
         guard interval > 0 else { return nil }
         let delta = current >= previous ? current - previous : 0
         let perSecond = UInt64(Double(delta) / interval)
@@ -27,10 +28,10 @@ final class IOMetricsCollector: @unchecked Sendable {
         let current = Self.readNetworkTotals()
         defer {
             previousNetworkTotal = current
-            previousTime = now
+            previousNetworkTime = now
         }
-        guard let previous = previousNetworkTotal, let previousTime else { return nil }
-        let interval = now.timeIntervalSince(previousTime)
+        guard let previous = previousNetworkTotal, let previousNetworkTime else { return nil }
+        let interval = now.timeIntervalSince(previousNetworkTime)
         guard interval > 0 else { return nil }
         let inbound = Self.wrapDelta(current: current.inbound, previous: previous.inbound)
         let outbound = Self.wrapDelta(current: current.outbound, previous: previous.outbound)

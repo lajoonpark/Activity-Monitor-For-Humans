@@ -59,11 +59,36 @@ struct ProcessSnapshot: Sendable, Equatable, Identifiable {
     var id: Int32
     var name: String
     var bundleIdentifier: String?
+    var parentPid: Int32?
     var cpuPercent: Double
     var residentBytes: UInt64
     var footprintBytes: UInt64?
     var energyNanojoulesDelta: UInt64?
     var isApplication: Bool
+}
+
+struct ProcessGroupStats: Sendable, Equatable, Identifiable {
+    var id: String
+    var name: String
+    var pid: Int32?
+    var isApplication: Bool
+    var cpuPercent: Double
+    var residentBytes: UInt64
+    var energyNanojoulesDelta: UInt64?
+    var processCount: Int32
+}
+
+extension MemoryCounters {
+    /// Shared definition of RAM "in use": physical minus free. Used by the popup,
+    /// the menu bar label, and the Overview so they cannot drift.
+    var usedBytes: UInt64 {
+        physicalBytes > freeBytes ? physicalBytes - freeBytes : 0
+    }
+
+    var usedFraction: Double {
+        guard physicalBytes > 0 else { return 0 }
+        return min(Double(usedBytes) / Double(physicalBytes), 1)
+    }
 }
 
 enum HealthLevel: String, Sendable {
