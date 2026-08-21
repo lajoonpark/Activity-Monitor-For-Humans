@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to attach the DMG to (optional; defaults to the pushed tag)"
+        required: false
+
+jobs:
+  release:
+    runs-on: macos-14
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify scheme is shared / discoverable
+        run: |
+          xcodebuild -project MacExplainer.xcodeproj -list
+          xcodebuild -project MacExplainer.xcodeproj -scheme MacExplainer -showBuildSettings \
+            | grep -E 'MARKETING_VERSION|PRODUCT_BUNDLE_IDENTIFIER' || true
+
+      - name: Build and package DMG
+        run: ./scripts/make_release.sh
+
+      - name: Determine release tag
+        id: tag
+        run: |
+          TAG="${{ github.event.inputs.tag }}"
+          if [[ -z "$TAG" ]]; then
+            TAG="${GITHUB_REF_NAME}"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Create (or reuse) GitHub Release and upload assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          # Create the release if it doesn't exist yet (fails silently if it does).
+          gh release create "$TAG" --title "$TAG" --generate-notes \
+            || echo "Release for $TAG already exists; uploading assets."
+          gh release upload "$TAG" dist/*.dmg dist/*.dmg.sha256 --clobber

@@ -1,0 +1,15 @@
+# Build artifacts
+.build/
+build/
+DerivedData/
+dist/
+*.dmg
+*.dmg.sha256
+
+# Xcode profile + workspace state
+default.profraw
+*.xcuserstate
+xcuserdata/
+
+# OS noise
+.DS_Store
