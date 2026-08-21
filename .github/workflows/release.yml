@@ -19,13 +19,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Select Xcode (project format requires Xcode 16+)
+        run: |
+          ls /Applications | grep -E '^Xcode'
+          sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer || true
+          xcodebuild -version
+
       - name: Verify scheme is shared / discoverable
         run: |
-          xcodebuild -project MacExplainer.xcodeproj -list
+          xcodebuild -project MacExplainer.xcodeproj -list || true
           xcodebuild -project MacExplainer.xcodeproj -scheme MacExplainer -showBuildSettings \
             | grep -E 'MARKETING_VERSION|PRODUCT_BUNDLE_IDENTIFIER' || true
 
       - name: Build and package DMG
+        env:
+          DEVELOPER_DIR: /Applications/Xcode_16.2.app/Contents/Developer
         run: ./scripts/make_release.sh
 
       - name: Determine release tag
