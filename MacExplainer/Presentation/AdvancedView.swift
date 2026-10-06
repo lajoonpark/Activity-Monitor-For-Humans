@@ -2,73 +2,107 @@ import SwiftUI
 
 struct AdvancedView: View {
     @Environment(AppSession.self) private var session
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    @State private var processSortAscending = false
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 18) {
                 if let snapshot = session.current {
-                    metricGrid(snapshot)
+                    Text("The raw numbers behind the Overview. Every name here can be clicked for a plain-English explanation.")
+                        .font(Typeface.prose(13))
+                        .foregroundStyle(Palette.inkSoft)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    metricSection(
+                        "Processor",
+                        rows: [
+                            (MetricGlossary.cpu, Formatters.percent(snapshot.cpu.totalUsedPercent)),
+                            (MetricGlossary.cpuUserSystem, "\(Formatters.percent(snapshot.cpu.userPercent)) / \(Formatters.percent(snapshot.cpu.systemPercent))"),
+                            (MetricGlossary.cpuIdle, Formatters.percent(snapshot.cpu.idlePercent)),
+                            (MetricGlossary.uptime, Formatters.duration(snapshot.uptime)),
+                        ]
+                    )
+
+                    metricSection(
+                        "Memory",
+                        rows: [
+                            (MetricGlossary.memory, Formatters.bytes(snapshot.memory.usedBytes)),
+                            (MetricGlossary.freeMemory, Formatters.bytes(snapshot.memory.freeBytes)),
+                            (MetricGlossary.activeMemory, Formatters.bytes(snapshot.memory.activeBytes)),
+                            (MetricGlossary.inactiveMemory, Formatters.bytes(snapshot.memory.inactiveBytes)),
+                            (MetricGlossary.wiredMemory, Formatters.bytes(snapshot.memory.wiredBytes)),
+                            (MetricGlossary.compressedMemory, Formatters.bytes(snapshot.memory.compressedBytes)),
+                            (MetricGlossary.purgeableMemory, Formatters.bytes(snapshot.memory.purgeableBytes)),
+                            (MetricGlossary.internalMemory, Formatters.bytes(snapshot.memory.internalBytes)),
+                            (MetricGlossary.externalMemory, Formatters.bytes(snapshot.memory.externalBytes)),
+                            (MetricGlossary.memoryPressure, pressureLabel(snapshot.memory.pressure)),
+                            (MetricGlossary.swap, Formatters.bytes(snapshot.memory.swapUsedBytes)),
+                            (MetricGlossary.swapTotal, Formatters.bytes(snapshot.memory.swapTotalBytes)),
+                        ]
+                    )
+
+                    metricSection(
+                        "Disk and network",
+                        rows: [
+                            (MetricGlossary.diskRead, Formatters.rate(snapshot.disk.bytesPerSecondIn)),
+                            (MetricGlossary.diskWrite, Formatters.rate(snapshot.disk.bytesPerSecondOut)),
+                            (MetricGlossary.networkDown, Formatters.rate(snapshot.network.bytesPerSecondIn)),
+                            (MetricGlossary.networkUp, Formatters.rate(snapshot.network.bytesPerSecondOut)),
+                        ]
+                    )
+
+                    metricSection(
+                        "Power and heat",
+                        rows: powerRows(snapshot)
+                    )
+
                     processTable
                 } else {
-                    ProgressView("Measuring\u{2026}")
+                    Text("Measuring\u{2026}")
+                        .font(Typeface.prose(15))
+                        .foregroundStyle(Palette.inkSoft)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .paperCard()
                 }
             }
-            .padding()
+            .padding(20)
+            .frame(maxWidth: 820, alignment: .leading)
+            .frame(maxWidth: .infinity)
         }
-        .navigationTitle("Advanced")
+        .background(Palette.paper)
+        .animation(Motion.respecting(Motion.drift, reduceMotion: reduceMotion), value: processSortAscending)
     }
 
-    private func metricGrid(_ snapshot: SystemSnapshot) -> some View {
-        let rows: [(String, String)] = [
-            ("CPU used", Formatters.percent(snapshot.cpu.totalUsedPercent)),
-            ("CPU user / system", "\(Formatters.percent(snapshot.cpu.userPercent)) / \(Formatters.percent(snapshot.cpu.systemPercent))"),
-            ("CPU idle", Formatters.percent(snapshot.cpu.idlePercent)),
-            ("Physical memory", Formatters.bytes(snapshot.memory.physicalBytes)),
-            ("Free", Formatters.bytes(snapshot.memory.freeBytes)),
-            ("Active", Formatters.bytes(snapshot.memory.activeBytes)),
-            ("Inactive", Formatters.bytes(snapshot.memory.inactiveBytes)),
-            ("Wired", Formatters.bytes(snapshot.memory.wiredBytes)),
-            ("Compressed", Formatters.bytes(snapshot.memory.compressedBytes)),
-            ("Internal", Formatters.bytes(snapshot.memory.internalBytes)),
-            ("External", Formatters.bytes(snapshot.memory.externalBytes)),
-            ("Purgeable", Formatters.bytes(snapshot.memory.purgeableBytes)),
-            ("Memory pressure", Self.pressureLabel(snapshot.memory.pressure)),
-            ("Swap used", Formatters.bytes(snapshot.memory.swapUsedBytes)),
-            ("Swap total", Formatters.bytes(snapshot.memory.swapTotalBytes)),
-            ("Disk read", Formatters.rate(snapshot.disk.bytesPerSecondIn)),
-            ("Disk write", Formatters.rate(snapshot.disk.bytesPerSecondOut)),
-            ("Network down", Formatters.rate(snapshot.network.bytesPerSecondIn)),
-            ("Network up", Formatters.rate(snapshot.network.bytesPerSecondOut)),
-            ("Thermal state", snapshot.thermal.description),
-            ("Uptime", Formatters.duration(snapshot.uptime)),
-            ("Low power mode", snapshot.lowPowerMode ? "On" : "Off"),
-        ] + batteryRows(snapshot)
+    // MARK: - Metric sections
 
-        return LazyVGrid(columns: [GridItem(.adaptive(minimum: 180), alignment: .leading)], spacing: 8) {
-            ForEach(rows, id: \.0) { row in
-                HStack {
-                    Text(row.0)
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(row.1)
-                        .monospacedDigit()
+    private func metricSection(_ title: String, rows: [(GlossaryEntry, String)]) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            SectionEyebrow(title: title)
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
+                    MetricRow(entry: row.0, value: row.1, showRule: index > 0)
                 }
-                .padding(8)
-                .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .controlBackgroundColor)))
             }
+            .paperCard(padding: 6)
         }
     }
 
-    private func batteryRows(_ snapshot: SystemSnapshot) -> [(String, String)] {
-        guard let battery = snapshot.battery else { return [("Battery", "Unavailable")] }
-        return [
-            ("Battery", "\(battery.percent)%"),
-            ("Charging", battery.isCharging ? "Yes" : "No"),
-            ("Power source", battery.isOnAC ? "AC" : "Battery"),
+    private func powerRows(_ snapshot: SystemSnapshot) -> [(GlossaryEntry, String)] {
+        var rows: [(GlossaryEntry, String)] = [
+            (MetricGlossary.thermalState, snapshot.thermal.description),
+            (MetricGlossary.lowPowerMode, snapshot.lowPowerMode ? "On" : "Off"),
         ]
+        if let battery = snapshot.battery {
+            rows.append((MetricGlossary.battery, "\(battery.percent)%"))
+            rows.append((MetricGlossary.charging, battery.isCharging ? "Yes" : "No"))
+            rows.append((MetricGlossary.powerSource, battery.isOnAC ? "Power adapter" : "Battery"))
+        }
+        return rows
     }
 
-    private static func pressureLabel(_ level: MemoryPressureLevel) -> String {
+    private func pressureLabel(_ level: MemoryPressureLevel) -> String {
         switch level {
         case .normal: return "Normal"
         case .warning: return "Warning"
@@ -78,29 +112,87 @@ struct AdvancedView: View {
         }
     }
 
+    // MARK: - Processes
+
+    private var sortedProcesses: [ProcessSnapshot] {
+        let processes = session.processes
+        return processSortAscending
+            ? processes.sorted { $0.cpuPercent < $1.cpuPercent }
+            : processes.sorted { $0.cpuPercent > $1.cpuPercent }
+    }
+
     private var processTable: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("Processes")
-                .font(.headline)
-            Table(session.processes.sorted { $0.cpuPercent > $1.cpuPercent }) {
-                TableColumn("PID") { process in
-                    Text("\(process.id)")
-                        .monospacedDigit()
+        VStack(alignment: .leading, spacing: 10) {
+            SectionEyebrow(title: "Processes")
+            VStack(alignment: .leading, spacing: 0) {
+                LedgerHeader {
+                    HStack(spacing: 4) {
+                        Text("PID")
+                            .font(Typeface.label(11))
+                            .foregroundStyle(Palette.inkSoft)
+                        GlossaryGlyphButton(entry: MetricGlossary.pid)
+                    }
+                    .frame(width: 64, alignment: .trailing)
+                    Text("Name")
+                        .font(Typeface.label(11))
+                        .foregroundStyle(Palette.inkSoft)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    SortableHeader(title: "CPU", entry: MetricGlossary.cpuApp, isActive: true, isAscending: processSortAscending, width: 74) {
+                        processSortAscending.toggle()
+                    }
+                    HStack(spacing: 4) {
+                        Text("Memory")
+                            .font(Typeface.label(11))
+                            .foregroundStyle(Palette.inkSoft)
+                        GlossaryGlyphButton(entry: MetricGlossary.residentMemory)
+                    }
+                    .frame(width: 110, alignment: .trailing)
                 }
-                .width(min: 50, ideal: 60)
-                TableColumn("Name") { process in
-                    Text(process.name).lineLimit(1)
+
+                ForEach(sortedProcesses) { process in
+                    LedgerRow {
+                        Text("\(process.id)")
+                            .font(Typeface.data(11.5))
+                            .monospacedDigit()
+                            .foregroundStyle(Palette.inkSoft)
+                            .frame(width: 52, alignment: .trailing)
+                        Text(process.name)
+                            .font(Typeface.label(12.5))
+                            .foregroundStyle(Palette.ink)
+                            .lineLimit(1)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        MetricValue(text: Formatters.percent(process.cpuPercent), font: Typeface.data(12))
+                            .frame(width: 62, alignment: .trailing)
+                        MetricValue(text: Formatters.bytes(process.memoryBytes), font: Typeface.data(12), color: Palette.inkSoft)
+                            .frame(width: 98, alignment: .trailing)
+                    }
                 }
-                TableColumn("CPU %") { process in
-                    Text(Formatters.percent(process.cpuPercent)).monospacedDigit()
-                }
-                .width(min: 60, ideal: 70)
-                TableColumn("RSS") { process in
-                    Text(Formatters.bytes(process.residentBytes)).monospacedDigit()
-                }
-                .width(min: 80, ideal: 100)
             }
-            .frame(height: 400)
+            .paperCard(padding: 8)
+        }
+    }
+}
+
+private struct MetricRow: View {
+    let entry: GlossaryEntry
+    let value: String
+    let showRule: Bool
+
+    var body: some View {
+        VStack(spacing: 0) {
+            if showRule {
+                Rectangle()
+                    .fill(Palette.rule)
+                    .frame(height: 1)
+                    .padding(.leading, 12)
+            }
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                GlossaryLabel(entry: entry, font: Typeface.label(12.5), tint: Palette.ink)
+                Spacer(minLength: 16)
+                MetricValue(text: value, font: Typeface.data(12.5), color: Palette.ink)
+            }
+            .padding(.vertical, 7)
+            .padding(.horizontal, 12)
         }
     }
 }
