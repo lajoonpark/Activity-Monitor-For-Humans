@@ -13,3 +13,7 @@ xcuserdata/
 
 # OS noise
 .DS_Store
+
+# IDE / agent tool config
+.idea/
+.kilo/

@@ -38,6 +38,7 @@ final class ProcessMetricsCollector: @unchecked Sendable {
         let userTicks: UInt64
         let systemTicks: UInt64
         let residentBytes: UInt64
+        let footprintBytes: UInt64?
         let parentPid: Int32?
         let energyNanojoules: UInt64?
         let path: String
@@ -81,7 +82,7 @@ final class ProcessMetricsCollector: @unchecked Sendable {
                 parentPid: raw.parentPid,
                 cpuPercent: percent,
                 residentBytes: raw.residentBytes,
-                footprintBytes: nil,
+                footprintBytes: raw.footprintBytes,
                 energyNanojoulesDelta: EnergyDelta.nanojoules(previous: previous?.energyNanojoules, current: raw.energyNanojoules),
                 isApplication: false
             )
@@ -123,13 +124,15 @@ final class ProcessMetricsCollector: @unchecked Sendable {
             guard pid > 0 else { continue }
             guard let info = taskAllInfo(for: pid) else { continue }
             let path = executablePath(for: pid)
+            let rusage = rusageSample(for: pid)
             samples.append(RawSample(
                 pid: pid,
                 userTicks: info.ptinfo.pti_total_user,
                 systemTicks: info.ptinfo.pti_total_system,
                 residentBytes: info.ptinfo.pti_resident_size,
+                footprintBytes: rusage.footprintBytes,
                 parentPid: Int32(info.pbsd.pbi_ppid),
-                energyNanojoules: energyNanojoules(for: pid),
+                energyNanojoules: rusage.energyNanojoules,
                 path: path
             ))
         }
@@ -143,18 +146,19 @@ final class ProcessMetricsCollector: @unchecked Sendable {
         return info
     }
 
-    /// Reads the process lifetime energy in nanojoules, or nil when the platform
-    /// does not report it (protected processes, unsupported builds). Uses a
-    /// caller-allocated struct buffer; the `void**` import style is avoided because
-    /// some macOS builds return an unreadable kernel pointer from it.
-    private static func energyNanojoules(for pid: Int32) -> UInt64? {
+    /// Reads the process's physical footprint and lifetime energy in one
+    /// `proc_pid_rusage` call, or nils when the platform does not report them
+    /// (protected processes, unsupported builds). Uses a caller-allocated
+    /// struct buffer; the `void**` import style is avoided because some
+    /// macOS builds return an unreadable kernel pointer from it.
+    private static func rusageSample(for pid: Int32) -> (footprintBytes: UInt64?, energyNanojoules: UInt64?) {
         var info = rusage_info_v6()
         let result = withUnsafeMutablePointer(to: &info) { pointer in
             let slot = unsafeBitCast(pointer, to: UnsafeMutablePointer<rusage_info_t?>.self)
             return proc_pid_rusage(pid, RUSAGE_INFO_V6, slot)
         }
-        guard result == 0 else { return nil }
-        return info.ri_energy_nj
+        guard result == 0 else { return (nil, nil) }
+        return (info.ri_phys_footprint, info.ri_energy_nj)
     }
 
     private static func executablePath(for pid: Int32) -> String {
