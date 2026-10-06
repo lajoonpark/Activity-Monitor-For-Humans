@@ -30,11 +30,9 @@ The TIM layer is the new work (in progress):
 - Xcode (the project uses SwiftUI and `SWIFT_COMPILATION_MODE = wholemodule`)
 - To build only, no code signing / Apple Developer account is needed.
 
-> **Naming note:** source directories, the Xcode project, and the build scheme still use the `MacExplainer` name from the parent project. A rename to TIM is pending; commands below use the current names.
-
 ## Download / install
 
-Grab the latest `MacExplainer-<version>-macOS[-arch].dmg` from the project's
+Grab the latest `TIM-<version>-macOS[-arch].dmg` from the project's
 GitHub **Releases** page, open it, and **drag the app into your Applications
 folder**. Release DMGs are Apple Silicon (**arm64**) builds.
 
@@ -52,10 +50,10 @@ The DMG is an Apple Silicon (**arm64**) build. Run `make_release.sh` with
 
 ## Build and run
 
-Open `MacExplainer.xcodeproj` in Xcode and run the `MacExplainer` scheme, or:
+Open `TIM.xcodeproj` in Xcode and run the `TIM` scheme, or:
 
 ```sh
-xcodebuild -scheme MacExplainer -destination 'platform=macOS'
+xcodebuild -scheme TIM -destination 'platform=macOS'
 ```
 
 The app is built with no third-party dependencies and no code signing
@@ -71,7 +69,7 @@ To produce a local test DMG (ad-hoc signed) in `dist/`:
 ARCH=arm64 ./scripts/make_release.sh   # Apple Silicon only
 ```
 
-This creates `dist/MacExplainer-<version>-macOS[-arch].dmg` plus a matching
+This creates `dist/TIM-<version>-macOS[-arch].dmg` plus a matching
 `.dmg.sha256` checksum. To ship a release via CI, push a version tag and GitHub
 Actions builds and attaches the DMG + checksum to a Release:
 
@@ -88,7 +86,7 @@ optional tag to attach the artifact to.)
 Unit tests cover grouping, history storage, energy/CPU deltas, formatters, health scoring, and explanation generation:
 
 ```sh
-xcodebuild test -scheme MacExplainer -destination 'platform=macOS'
+xcodebuild test -scheme TIM -destination 'platform=macOS'
 ```
 
 ## Architecture
@@ -97,12 +95,12 @@ Repository layout follows a strict separation between concerns, per the project 
 
 | Layer | Location |
 |---|---|
-| Metric collection | `MacExplainer/Collection/` |
-| Interpretation / health scoring | `MacExplainer/Interpretation/` |
-| Storage / history | `MacExplainer/Storage/` |
-| Presentation / UI | `MacExplainer/Presentation/` |
-| Models, session, preferences | `MacExplainer/Models.swift`, `AppSession.swift`, `Settings/` |
-| Tim / personality layer | *(planned)* `MacExplainer/Tim/` |
+| Metric collection | `TIM/Collection/` |
+| Interpretation / health scoring | `TIM/Interpretation/` |
+| Storage / history | `TIM/Storage/` |
+| Presentation / UI | `TIM/Presentation/` |
+| Models, session, preferences | `TIM/Models.swift`, `AppSession.swift`, `Settings/` |
+| Tim / personality layer | *(planned)* `TIM/Tim/` |
 
 Key design points:
 
@@ -116,9 +114,9 @@ Key design points:
 ## Repository map
 
 ```
-MacExplainer/                 App sources (Swift, SwiftUI)
-MacExplainerTests/           XCTest bundle with unit tests
-MacExplainer.xcodeproj/      Xcode project
+TIM/                 App sources (Swift, SwiftUI)
+TIMTests/           XCTest bundle with unit tests
+TIM.xcodeproj/      Xcode project
 scripts/make_icon.swift      Generates the app icon artwork
 scripts/make_release.sh      Builds the universal DMG release (local + CI)
 .github/workflows/release.yml Tag-triggered CI that attaches the DMG to a Release

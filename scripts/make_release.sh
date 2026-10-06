@@ -2,7 +2,7 @@
 #
 # make_release.sh
 #
-# Builds an ad-hoc signed Release build of MacExplainer and packages it into a
+# Builds an ad-hoc signed Release build of TIM and packages it into a
 # drag-to-Applications DMG. Architecture is selected with ARCH=arm64 | x86_64 |
 # universal (default: universal).
 #
@@ -14,15 +14,15 @@ set -euo pipefail
 # --- 0. Resolve paths -------------------------------------------------------
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-PROJECT="$REPO_ROOT/MacExplainer.xcodeproj"
-SCHEME="MacExplainer"
+PROJECT="$REPO_ROOT/TIM.xcodeproj"
+SCHEME="TIM"
 
 OUT_DIR="${OUT_DIR:-$REPO_ROOT/dist}"
 DERIVED_DATA="${DERIVED_DATA_PATH:-$REPO_ROOT/.build}"
 
-APP_NAME="MacExplainer"
+APP_NAME="TIM"
 APP_PATH="$DERIVED_DATA/Build/Products/Release/$APP_NAME.app"
-STAGING_DIR="$(mktemp -d -t macexplainer-dmg)"
+STAGING_DIR="$(mktemp -d -t tim-dmg)"
 trap 'rm -rf "$STAGING_DIR"' EXIT
 
 mkdir -p "$OUT_DIR"
@@ -39,7 +39,7 @@ esac
 if [[ "$ARCH" == "universal" ]]; then ARCH_SUFFIX=""; else ARCH_SUFFIX="-$ARCH"; fi
 echo "    arch      : $ARCH ($ARCHS)"
 
-echo "==> MacExplainer release packaging"
+echo "==> TIM release packaging"
 echo "    repo root : $REPO_ROOT"
 echo "    output    : $OUT_DIR"
 
@@ -96,10 +96,10 @@ cp -R "$APP_PATH" "$STAGING_DIR/"
 ln -s /Applications "$STAGING_DIR/Applications"
 
 cat > "$STAGING_DIR/README.txt" <<EOF
-MacExplainer $VERSION
+TIM $VERSION
 
 Install:
-  Drag MacExplainer.app into the Applications folder.
+  Drag TIM.app into the Applications folder.
 
 First launch:
   The app is ad-hoc signed (this is an open-source project without a
@@ -107,7 +107,7 @@ First launch:
   "cannot be verified" the first time.
 
   To open it anyway:
-    - Control-click (right-click) MacExplainer.app -> Open -> Open, or
+    - Control-click (right-click) TIM.app -> Open -> Open, or
     - System Settings -> Privacy & Security -> scroll to the bottom ->
       "Open Anyway" -> Open.
 

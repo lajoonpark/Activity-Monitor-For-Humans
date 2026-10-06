@@ -89,7 +89,7 @@ struct MenuBarContent: View {
                     openWindow(id: "main")
                     NSApp.activate(ignoringOtherApps: true)
                 } label: {
-                    Label("Open MacExplainer", systemImage: "arrow.up.forward.app")
+                    Label("Open TIM", systemImage: "arrow.up.forward.app")
                         .font(Typeface.label(12))
                 }
                 .buttonStyle(.plain)

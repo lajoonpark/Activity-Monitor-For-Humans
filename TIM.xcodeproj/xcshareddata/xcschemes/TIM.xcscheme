@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "CA0D00000000000000000010"
-               BuildableName = "MacExplainer.app"
-               BlueprintName = "MacExplainer"
-               ReferencedContainer = "container:MacExplainer.xcodeproj">
+               BuildableName = "TIM.app"
+               BlueprintName = "TIM"
+               ReferencedContainer = "container:TIM.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "CA0D00000000000000000011"
-               BuildableName = "MacExplainerTests.xctest"
-               BlueprintName = "MacExplainerTests"
-               ReferencedContainer = "container:MacExplainer.xcodeproj">
+               BuildableName = "TIMTests.xctest"
+               BlueprintName = "TIMTests"
+               ReferencedContainer = "container:TIM.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CA0D00000000000000000010"
-            BuildableName = "MacExplainer.app"
-            BlueprintName = "MacExplainer"
-            ReferencedContainer = "container:MacExplainer.xcodeproj">
+            BuildableName = "TIM.app"
+            BlueprintName = "TIM"
+            ReferencedContainer = "container:TIM.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CA0D00000000000000000010"
-            BuildableName = "MacExplainer.app"
-            BlueprintName = "MacExplainer"
-            ReferencedContainer = "container:MacExplainer.xcodeproj">
+            BuildableName = "TIM.app"
+            BlueprintName = "TIM"
+            ReferencedContainer = "container:TIM.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

@@ -1,5 +1,5 @@
 import XCTest
-@testable import MacExplainer
+@testable import TIM
 
 final class FormattersTests: XCTestCase {
     func testNilDeltaShowsDash() {

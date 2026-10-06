@@ -12,24 +12,24 @@
 			containerPortal = CA0D00000000000000000001 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = CA0D00000000000000000010;
-			remoteInfo = MacExplainer;
+			remoteInfo = TIM;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		CA0D00000000000000000040 /* MacExplainer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MacExplainer.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		CA0D00000000000000000041 /* MacExplainerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MacExplainerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CA0D00000000000000000040 /* TIM.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TIM.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CA0D00000000000000000041 /* TIMTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TIMTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		CA0D00000000000000000020 /* MacExplainer */ = {
+		CA0D00000000000000000020 /* TIM */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = MacExplainer;
+			path = TIM;
 			sourceTree = "<group>";
 		};
-		CA0D00000000000000000021 /* MacExplainerTests */ = {
+		CA0D00000000000000000021 /* TIMTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = MacExplainerTests;
+			path = TIMTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -55,8 +55,8 @@
 		CA0D00000000000000000002 = {
 			isa = PBXGroup;
 			children = (
-				CA0D00000000000000000020 /* MacExplainer */,
-				CA0D00000000000000000021 /* MacExplainerTests */,
+				CA0D00000000000000000020 /* TIM */,
+				CA0D00000000000000000021 /* TIMTests */,
 				CA0D00000000000000000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -64,8 +64,8 @@
 		CA0D00000000000000000003 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				CA0D00000000000000000040 /* MacExplainer.app */,
-				CA0D00000000000000000041 /* MacExplainerTests.xctest */,
+				CA0D00000000000000000040 /* TIM.app */,
+				CA0D00000000000000000041 /* TIMTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -73,9 +73,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		CA0D00000000000000000010 /* MacExplainer */ = {
+		CA0D00000000000000000010 /* TIM */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = CA0D00000000000000000067 /* Build configuration list for PBXNativeTarget "MacExplainer" */;
+			buildConfigurationList = CA0D00000000000000000067 /* Build configuration list for PBXNativeTarget "TIM" */;
 			buildPhases = (
 				CA0D00000000000000000030 /* Sources */,
 				CA0D00000000000000000031 /* Frameworks */,
@@ -86,18 +86,18 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				CA0D00000000000000000020 /* MacExplainer */,
+				CA0D00000000000000000020 /* TIM */,
 			);
-			name = MacExplainer;
+			name = TIM;
 			packageProductDependencies = (
 			);
-			productName = MacExplainer;
-			productReference = CA0D00000000000000000040 /* MacExplainer.app */;
+			productName = TIM;
+			productReference = CA0D00000000000000000040 /* TIM.app */;
 			productType = "com.apple.product-type.application";
 		};
-		CA0D00000000000000000011 /* MacExplainerTests */ = {
+		CA0D00000000000000000011 /* TIMTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = CA0D00000000000000000068 /* Build configuration list for PBXNativeTarget "MacExplainerTests" */;
+			buildConfigurationList = CA0D00000000000000000068 /* Build configuration list for PBXNativeTarget "TIMTests" */;
 			buildPhases = (
 				CA0D00000000000000000033 /* Sources */,
 				CA0D00000000000000000034 /* Frameworks */,
@@ -109,13 +109,13 @@
 				CA0D00000000000000000051 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				CA0D00000000000000000021 /* MacExplainerTests */,
+				CA0D00000000000000000021 /* TIMTests */,
 			);
-			name = MacExplainerTests;
+			name = TIMTests;
 			packageProductDependencies = (
 			);
-			productName = MacExplainerTests;
-			productReference = CA0D00000000000000000041 /* MacExplainerTests.xctest */;
+			productName = TIMTests;
+			productReference = CA0D00000000000000000041 /* TIMTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -133,7 +133,7 @@
 					};
 				};
 			};
-			buildConfigurationList = CA0D00000000000000000066 /* Build configuration list for PBXProject "MacExplainer" */;
+			buildConfigurationList = CA0D00000000000000000066 /* Build configuration list for PBXProject "TIM" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -147,8 +147,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				CA0D00000000000000000010 /* MacExplainer */,
-				CA0D00000000000000000011 /* MacExplainerTests */,
+				CA0D00000000000000000010 /* TIM */,
+				CA0D00000000000000000011 /* TIMTests */,
 			);
 		};
 /* End PBXProject section */
@@ -190,7 +190,7 @@
 /* Begin PBXTargetDependency section */
 		CA0D00000000000000000051 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = CA0D00000000000000000010 /* MacExplainer */;
+			target = CA0D00000000000000000010 /* TIM */;
 			targetProxy = CA0D00000000000000000050 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -318,14 +318,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = MacExplainer/MacExplainer.entitlements;
+				CODE_SIGN_ENTITLEMENTS = TIM/TIM.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = MacExplainer;
+				INFOPLIST_KEY_CFBundleDisplayName = TIM;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -334,7 +334,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 2.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.macexplainer.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lajoonpark.tim;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -346,14 +346,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = MacExplainer/MacExplainer.entitlements;
+				CODE_SIGN_ENTITLEMENTS = TIM/TIM.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = MacExplainer;
+				INFOPLIST_KEY_CFBundleDisplayName = TIM;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -362,7 +362,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 2.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.macexplainer.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lajoonpark.tim;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -378,11 +378,11 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 2.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.macexplainer.appTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lajoonpark.tim.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MacExplainer.app/Contents/MacOS/MacExplainer";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TIM.app/Contents/MacOS/TIM";
 			};
 			name = Debug;
 		};
@@ -395,18 +395,18 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 2.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.macexplainer.appTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lajoonpark.tim.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MacExplainer.app/Contents/MacOS/MacExplainer";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TIM.app/Contents/MacOS/TIM";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		CA0D00000000000000000066 /* Build configuration list for PBXProject "MacExplainer" */ = {
+		CA0D00000000000000000066 /* Build configuration list for PBXProject "TIM" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CA0D00000000000000000060 /* Debug */,
@@ -415,7 +415,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		CA0D00000000000000000067 /* Build configuration list for PBXNativeTarget "MacExplainer" */ = {
+		CA0D00000000000000000067 /* Build configuration list for PBXNativeTarget "TIM" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CA0D00000000000000000062 /* Debug */,
@@ -424,7 +424,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		CA0D00000000000000000068 /* Build configuration list for PBXNativeTarget "MacExplainerTests" */ = {
+		CA0D00000000000000000068 /* Build configuration list for PBXNativeTarget "TIMTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CA0D00000000000000000064 /* Debug */,

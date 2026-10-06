@@ -1,5 +1,5 @@
 import XCTest
-@testable import MacExplainer
+@testable import TIM
 
 final class HealthScorerTests: XCTestCase {
     private var scorer: HealthScorer.Type { HealthScorer.self }
