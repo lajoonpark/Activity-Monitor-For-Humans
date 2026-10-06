@@ -2,8 +2,9 @@
 #
 # make_release.sh
 #
-# Builds an ad-hoc signed, universal (arm64 + x86_64) Release build of
-# MacExplainer and packages it into a drag-to-Applications DMG.
+# Builds an ad-hoc signed Release build of MacExplainer and packages it into a
+# drag-to-Applications DMG. Architecture is selected with ARCH=arm64 | x86_64 |
+# universal (default: universal).
 #
 # Used both locally and by .github/workflows/release.yml. Single source of
 # truth for release packaging.
@@ -26,6 +27,18 @@ trap 'rm -rf "$STAGING_DIR"' EXIT
 
 mkdir -p "$OUT_DIR"
 
+# --- Architecture selection (ARCH=arm64 | x86_64 | universal) ---------------
+ARCH="${ARCH:-universal}"
+case "$ARCH" in
+  arm64)     ARCHS='arm64' ;;
+  x86_64)    ARCHS='x86_64' ;;
+  universal) ARCHS='arm64 x86_64' ;;
+  *) echo "error: unknown ARCH '$ARCH' (use arm64, x86_64, or universal)" >&2; exit 1 ;;
+esac
+# Universal keeps the historical '-macOS.dmg' name; single-arch adds a suffix.
+if [[ "$ARCH" == "universal" ]]; then ARCH_SUFFIX=""; else ARCH_SUFFIX="-$ARCH"; fi
+echo "    arch      : $ARCH ($ARCHS)"
+
 echo "==> MacExplainer release packaging"
 echo "    repo root : $REPO_ROOT"
 echo "    output    : $OUT_DIR"
@@ -39,18 +52,18 @@ VERSION="$(\
 VERSION="${VERSION:-0.0.0}"
 echo "    version   : $VERSION"
 
-DMG_NAME="$APP_NAME-$VERSION-macOS.dmg"
+DMG_NAME="$APP_NAME-$VERSION-macOS${ARCH_SUFFIX}.dmg"
 DMG_PATH="$OUT_DIR/$DMG_NAME"
 
 # --- 2. Build universal Release ---------------------------------------------
-echo "==> Building universal Release ($(uname -m) host)..."
+echo "==> Building $ARCH Release ($(uname -m) host)..."
 xcodebuild \
   -project "$PROJECT" \
   -scheme "$SCHEME" \
   -configuration Release \
   -destination 'platform=macOS' \
   -derivedDataPath "$DERIVED_DATA" \
-  ARCHS='arm64 x86_64' \
+  ARCHS="$ARCHS" \
   ONLY_ACTIVE_ARCH=NO \
   build
 

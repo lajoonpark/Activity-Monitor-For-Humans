@@ -20,9 +20,9 @@ A lightweight native macOS app that translates Activity Monitor-style system inf
 
 ## Download / install
 
-Grab the latest `MacExplainer-<version>-macOS.dmg` from the project's GitHub
-**Releases** page, open it, and **drag `MacExplainer.app` into your
-Applications folder**.
+Grab the latest `MacExplainer-<version>-macOS[-arch].dmg` from the project's
+GitHub **Releases** page, open it, and **drag `MacExplainer.app` into your
+Applications folder**. Release DMGs are Apple Silicon (**arm64**) builds.
 
 **Gatekeeper note:** the app is *ad-hoc signed* — the project doesn't use a paid
 Apple Developer ID — so the first launch may say the developer "cannot be
@@ -33,8 +33,8 @@ anyway:
 - **System Settings → Privacy & Security** → scroll to the bottom → **Open
   Anyway** → **Open**.
 
-The DMG is a universal build (Apple Silicon + Intel), so the same download works
-on either Mac architecture.
+The DMG is an Apple Silicon (**arm64**) build. Run `make_release.sh` with
+`ARCH=universal` if you need a combined Apple Silicon + Intel download.
 
 ## Build and run
 
@@ -50,13 +50,14 @@ setup.
 
 ## Building a release
 
-To produce a local test DMG (universal, ad-hoc signed) in `dist/`:
+To produce a local test DMG (ad-hoc signed) in `dist/`:
 
 ```sh
-./scripts/make_release.sh
+./scripts/make_release.sh              # universal (arm64 + x86_64)
+ARCH=arm64 ./scripts/make_release.sh   # Apple Silicon only
 ```
 
-This creates `dist/MacExplainer-<version>-macOS.dmg` plus a matching
+This creates `dist/MacExplainer-<version>-macOS[-arch].dmg` plus a matching
 `.dmg.sha256` checksum. To ship a release via CI, push a version tag and GitHub
 Actions builds and attaches the DMG + checksum to a Release:
 
