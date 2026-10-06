@@ -3,6 +3,7 @@ import SwiftUI
 struct EnergyView: View {
     @Environment(AppSession.self) private var session
     @Environment(AppPreferences.self) private var preferences
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var energyGroups: [ProcessGroupStats] {
         session.appGroups
@@ -11,84 +12,146 @@ struct EnergyView: View {
     }
 
     private var topGroup: ProcessGroupStats? {
-        energyGroups.first
-    }
-
-    private var hasAnyEnergy: Bool {
-        energyGroups.contains { ($0.energyNanojoulesDelta ?? 0) > 0 }
+        energyGroups.first(where: { ($0.energyNanojoulesDelta ?? 0) > 0 })
     }
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 16) {
+                SectionEyebrow(title: "Energy")
+
                 if let top = topGroup {
                     calloutCard(top)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
                 }
-                table
-                if !hasAnyEnergy {
-                    footnote
-                }
-                }
-                .padding()
-                .frame(maxWidth: 720, alignment: .leading)
-                .frame(maxWidth: .infinity)
-            }
-            .navigationTitle("Energy")
-        }
 
-    private func calloutCard(_ group: ProcessGroupStats) -> some View {
-        HStack(spacing: 10) {
-            ProcessIconView(pid: group.pid ?? -1)
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Using the most energy right now")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Text(group.name)
-                    .font(.title3)
-                    .bold()
+                if session.state != .active {
+                    waitingState
+                } else if energyGroups.isEmpty {
+                    emptyState
+                } else {
+                    ledger
+                }
+
+                footnote
             }
-            Spacer()
-            Text(Formatters.watts(group.energyNanojoulesDelta, interval: preferences.sampleInterval))
-                .font(.title3)
-                .monospacedDigit()
+            .padding(20)
+            .frame(maxWidth: 760, alignment: .leading)
+            .frame(maxWidth: .infinity)
         }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: 12).fill(Color(nsColor: .controlBackgroundColor)))
+        .background(Palette.paper)
+        .animation(Motion.respecting(Motion.settle, reduceMotion: reduceMotion), value: topGroup?.id)
     }
 
-    private var table: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("App groups")
-                .font(.headline)
-            Table(energyGroups) {
-                TableColumn("App") { group in
-                    HStack(spacing: 8) {
-                        ProcessIconView(pid: group.pid ?? -1)
-                        VStack(alignment: .leading, spacing: 1) {
-                            Text(group.name)
-                                .lineLimit(1)
-                            Text("\(group.processCount) processes")
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
+    private func calloutCard(_ group: ProcessGroupStats) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                ProcessIconView(pid: group.pid ?? -1)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Using the most energy right now")
+                        .font(Typeface.label(11))
+                        .foregroundStyle(Palette.inkSoft)
+                    Text(group.name)
+                        .font(Typeface.proseEmphasis(19))
+                        .foregroundStyle(Palette.ink)
+                        .lineLimit(1)
                 }
-                .width(min: 220, ideal: 300)
-
-                TableColumn("Watts") { group in
-                    Text(Formatters.watts(group.energyNanojoulesDelta, interval: preferences.sampleInterval))
-                        .monospacedDigit()
+                Spacer()
+                VStack(alignment: .trailing, spacing: 2) {
+                    MetricValue(
+                        text: Formatters.watts(group.energyNanojoulesDelta, interval: preferences.sampleInterval),
+                        font: Typeface.dataLarge(22),
+                        color: Palette.ink
+                    )
+                    Text("drawn right now")
+                        .font(Typeface.label(10.5))
+                        .foregroundStyle(Palette.inkSoft)
                 }
-                .width(min: 90, ideal: 120)
             }
-            .frame(minHeight: 200)
+            GaugeBar(fraction: topFraction(for: group), tint: Palette.accent)
         }
+        .paperCard()
+    }
+
+    private func topFraction(for group: ProcessGroupStats) -> Double {
+        guard let biggest = energyGroups.map({ $0.energyNanojoulesDelta ?? 0 }).max(), biggest > 0 else { return 0 }
+        return Double(group.energyNanojoulesDelta ?? 0) / Double(biggest)
+    }
+
+    private var ledger: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            LedgerHeader {
+                Text("App")
+                    .font(Typeface.label(11))
+                    .foregroundStyle(Palette.inkSoft)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                HStack(spacing: 4) {
+                    Text("Power draw")
+                        .font(Typeface.label(11))
+                        .foregroundStyle(Palette.inkSoft)
+                    GlossaryGlyphButton(entry: MetricGlossary.energyWatts)
+                }
+                .frame(width: 118, alignment: .trailing)
+            }
+
+            ForEach(energyGroups) { group in
+                LedgerRow {
+                    ProcessIconView(pid: group.pid ?? -1)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(group.name)
+                            .font(Typeface.label(13))
+                            .foregroundStyle(Palette.ink)
+                            .lineLimit(1)
+                        Text(group.processCount == 1 ? "1 process" : "\(group.processCount) processes")
+                            .font(Typeface.label(10.5))
+                            .foregroundStyle(Palette.inkSoft)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                    MetricValue(
+                        text: Formatters.watts(group.energyNanojoulesDelta, interval: preferences.sampleInterval),
+                        font: Typeface.data(12.5),
+                        color: Palette.inkSoft
+                    )
+                    .frame(width: 106, alignment: .trailing)
+                }
+            }
+        }
+        .paperCard(padding: 8)
+    }
+
+    private var waitingState: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Taking a reading\u{2026}")
+                .font(Typeface.proseEmphasis(16))
+                .foregroundStyle(Palette.ink)
+            Text("Energy readings appear as soon as your Mac has been measured.")
+                .font(Typeface.prose(13.5))
+                .foregroundStyle(Palette.inkSoft)
+        }
+        .paperCard()
+    }
+
+    private var emptyState: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("No energy readings available.")
+                .font(Typeface.proseEmphasis(16))
+                .foregroundStyle(Palette.ink)
+            Text("Your Mac is not reporting per-app power draw at the moment.")
+                .font(Typeface.prose(13.5))
+                .foregroundStyle(Palette.inkSoft)
+        }
+        .paperCard()
     }
 
     private var footnote: some View {
-        Text("Per-process energy is reported by macOS only on some Macs. On others it reports none (—) or 0 W.")
-            .font(.caption)
-            .foregroundStyle(.secondary)
+        HStack(alignment: .top, spacing: 6) {
+            GlossaryGlyphButton(entry: MetricGlossary.energyWatts)
+            Text("macOS reports power draw per app only on some Macs. On others it reports none (—) or 0 W.")
+                .font(Typeface.prose(11.5))
+                .foregroundStyle(Palette.inkSoft)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(.top, 2)
     }
 }

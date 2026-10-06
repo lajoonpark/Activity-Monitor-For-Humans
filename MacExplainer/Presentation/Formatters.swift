@@ -43,23 +43,3 @@ enum Formatters {
         return "about \(String(format: "%.1f", watts)) W"
     }
 }
-
-extension HealthLevel {
-    var tintColor: Color {
-        switch self {
-        case .normal: return .green
-        case .moderateLoad: return .yellow
-        case .highLoad: return .orange
-        case .potentialProblem: return .red
-        }
-    }
-
-    var systemImage: String {
-        switch self {
-        case .normal: return "checkmark.circle.fill"
-        case .moderateLoad: return "exclamationmark.circle.fill"
-        case .highLoad: return "exclamationmark.triangle.fill"
-        case .potentialProblem: return "exclamationmark.triangle.fill"
-        }
-    }
-}

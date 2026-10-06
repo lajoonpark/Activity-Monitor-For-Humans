@@ -11,7 +11,7 @@ struct MenuBarLabel: View {
                 .foregroundStyle(levelColor)
             if preferences.menuBarMetrics == .inMenuBar, !metricsLine.isEmpty {
                 Text(metricsLine)
-                    .font(.caption2)
+                    .font(.system(size: 11, weight: .medium, design: .monospaced))
                     .monospacedDigit()
                     .foregroundStyle(.secondary)
             }
@@ -26,7 +26,7 @@ struct MenuBarLabel: View {
 
     private var levelColor: Color {
         if let level = session.interpreted?.level {
-            return level.tintColor
+            return Palette.health(level)
         }
         return .secondary
     }
@@ -37,65 +37,102 @@ struct MenuBarContent: View {
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 8) {
-                Image(systemName: levelImage)
-                    .foregroundStyle(levelColor)
-                Text(summary)
-                    .font(.headline)
-            }
-            if let reasons = session.interpreted?.reasons, !reasons.isEmpty {
-                ForEach(reasons) { reason in
-                    Text(reason.headline)
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 0) {
+            readoutStrip
+            VStack(alignment: .leading, spacing: 10) {
+                if let reasons = session.interpreted?.reasons, !reasons.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        ForEach(reasons) { reason in
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(reason.headline)
+                                    .font(Typeface.proseEmphasis(13))
+                                    .foregroundStyle(Palette.ink)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                Text(reason.detail)
+                                    .font(Typeface.prose(11.5))
+                                    .foregroundStyle(Palette.inkSoft)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                    }
+                } else if session.state != .active {
+                    Text("Taking a reading\u{2026}")
+                        .font(Typeface.prose(13))
+                        .foregroundStyle(Palette.inkSoft)
+                } else {
+                    Text("Nothing needs your attention.")
+                        .font(Typeface.prose(13))
+                        .foregroundStyle(Palette.inkSoft)
                 }
-            } else if session.state != .active {
-                Text("Measuring\u{2026}")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
+
+                if let snapshot = session.current {
+                    HStack(spacing: 6) {
+                        Text("CPU")
+                            .font(Typeface.label(10.5))
+                            .foregroundStyle(Palette.inkSoft)
+                        MetricValue(text: Formatters.percent(snapshot.cpu.totalUsedPercent), font: Typeface.data(11.5))
+                        Text("\u{00B7}")
+                            .foregroundStyle(Palette.inkSoft)
+                        Text("RAM")
+                            .font(Typeface.label(10.5))
+                            .foregroundStyle(Palette.inkSoft)
+                        MetricValue(text: Formatters.bytes(snapshot.memory.usedBytes), font: Typeface.data(11.5), color: Palette.inkSoft)
+                        Spacer()
+                    }
+                }
+
+                Rectangle()
+                    .fill(Palette.rule)
+                    .frame(height: 1)
+
+                Button {
+                    openWindow(id: "main")
+                    NSApp.activate(ignoringOtherApps: true)
+                } label: {
+                    Label("Open MacExplainer", systemImage: "arrow.up.forward.app")
+                        .font(Typeface.label(12))
+                }
+                .buttonStyle(.plain)
+
+                Button {
+                    NSApplication.shared.terminate(nil)
+                } label: {
+                    Label("Quit", systemImage: "power")
+                        .font(Typeface.label(12))
+                }
+                .buttonStyle(.plain)
             }
-            if let snapshot = session.current {
-                Text("CPU \(Formatters.percent(snapshot.cpu.totalUsedPercent))  \u{00B7}  RAM about \(Formatters.bytes(snapshot.memory.usedBytes))")
-                    .font(.callout)
-                    .monospacedDigit()
-                    .foregroundStyle(.secondary)
-            }
-            Divider().padding(.vertical, 4)
-            Button {
-                openWindow(id: "main")
-                NSApp.activate(ignoringOtherApps: true)
-            } label: {
-                Label("Open MacExplainer", systemImage: "arrow.up.forward.app")
-            }
-            Button {
-                NSApplication.shared.terminate(nil)
-            } label: {
-                Label("Quit", systemImage: "power")
-            }
+            .padding(14)
         }
-        .padding()
-        .frame(width: 280)
+        .frame(width: 300)
+        .background(Palette.paper)
+    }
+
+    private var readoutStrip: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(spacing: 6) {
+                Circle()
+                    .fill(Palette.health(session.interpreted?.level ?? .normal))
+                    .frame(width: 7, height: 7)
+                Text("Your Mac, right now")
+                    .font(Typeface.eyebrow())
+                    .tracking(1)
+                    .foregroundStyle(Palette.readoutSoft)
+            }
+            Text(summary)
+                .font(Typeface.proseEmphasis(16))
+                .foregroundStyle(Palette.readoutInk)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Palette.readout)
     }
 
     private var summary: String {
         if let interpreted = session.interpreted {
             return interpreted.summary
         }
-        return "Measuring\u{2026}"
-    }
-
-    private var levelColor: Color {
-        if let level = session.interpreted?.level {
-            return level.tintColor
-        }
-        return .secondary
-    }
-
-    private var levelImage: String {
-        if let level = session.interpreted?.level {
-            return level.systemImage
-        }
-        return "questionmark.circle"
+        return "Taking a reading\u{2026}"
     }
 }

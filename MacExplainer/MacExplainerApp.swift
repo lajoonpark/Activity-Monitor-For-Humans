@@ -24,6 +24,7 @@ struct ContentView: View {
                 SettingsView()
                     .tabItem { Label("Settings", systemImage: "gearshape") }
             }
+            .tint(Palette.accent)
             .frame(minWidth: 720, minHeight: 480)
             .onAppear {
                 NSApp.activate(ignoringOtherApps: true)
