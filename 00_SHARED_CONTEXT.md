@@ -1,26 +1,30 @@
-# Shared Project Context — macOS Activity Explainer
+# Shared Project Context — TIM (The Ironic Monitor)
 
-## Give this to Kilo first
+## What this project is
 
-You are working on a native macOS application whose purpose is to translate Activity Monitor-style system information into language that ordinary people can understand.
+TIM ("The Ironic Monitor") is a flashy, game-inspired macOS activity monitor with a personality. It is a fork of Activity-Monitor-For-Humans ("MacExplainer"): the metrics engine is reused as-is, and the personality/presentation layer is the new work.
+
+Full vision and characters live in [`project-tim-idea.md`](project-tim-idea.md).
 
 ## Product goal
 
-Build a lightweight native macOS app that a user can download and install as a `.dmg`.
+Build a lightweight native macOS app that a user can download and install as a `.dmg`, which collects useful Mac system metrics and presents them in a way that is *fun* — satisfying enough that you could sit there clicking, scrolling, and moving the cursor around without getting bored — while remaining accurate and honest about what the machine is actually doing.
 
-The app should collect useful Mac system metrics and present them in a simple, reassuring, accurate way without requiring the user to understand technical terms such as swap, memory pressure, system CPU, cached RAM, process IDs, disk I/O, or network throughput.
+Tim Howard, an animated stick man, is the face of the app. He works at TIM compiling data and keeping the animations running. He is a little bored and tired of his job. His dream is to move to Italy and get a pay raise from his boss, Jimmy "the boss" Nelson — a grumpy man with a soft side who has never given him one in 60 years. Tim's coworkers make fun of him because his name is Tim and he works at TIM.
 
-The app should answer questions such as:
+Other characters (Jimmy, coworkers) are **never shown on screen**. When they speak, their speech bubbles come in from the side of the window.
 
-- Is my Mac running normally?
-- Is my Mac actually low on memory?
-- What app is using the most memory?
-- What is making my Mac feel slow?
-- Is high RAM usage actually a problem?
-- Is CPU usage unusually high?
-- Is macOS using swap?
-- Which apps are consuming the most resources?
-- Has the Mac been under load recently?
+## Design direction (2026-10-07 decision)
+
+Tim is an animated **overlay on a normal stats UI**, not a full scene where the metrics are props. Stats stay front and center; the personality is commentary.
+
+- A persistent "stage strip" (bottom or side of the window) where Tim walks in, idles, works, and reacts to what the machine is doing ("CPU at 90%... this is fine.").
+- Off-screen conversations with Jimmy and coworkers arrive as speech bubbles poking in from the window edge.
+- Everything should have "juice": numbers that pop, hover/click feedback, satisfying transitions. Lean into video-game feel and indie-solo-dev charm.
+- Lots of easter eggs (invent them as we go).
+- The app must not become a toy that hides the data — the point is still to know what your Mac is doing.
+
+The Paper & Panel design language from the parent project is expected to give way to something flashier; that direction is still to be defined.
 
 ## Technical direction
 
@@ -29,7 +33,7 @@ Use:
 - Swift
 - SwiftUI
 - Native macOS APIs wherever practical
-- Swift Charts for graphs/history
+- Swift Charts for graphs/history (with more visual juice than stock charts where practical)
 - A modular architecture
 - No Electron
 - No browser wrapper
@@ -45,8 +49,9 @@ Keep these concerns separate:
 2. Metric storage/history
 3. Interpretation / health scoring
 4. Presentation / UI
+5. Tim / personality layer (reacts to metrics and interpretation signals; never computes them)
 
-Do NOT mix raw metric collection code with human-readable health judgments.
+Raw metrics never mix with human-readable judgments, and Tim's lines are driven by the same signals the UI uses — he never invents his own reading of the machine.
 
 For example:
 
@@ -58,6 +63,9 @@ Interpretation:
 
 UI:
 `Your Mac is managing memory normally.`
+
+Tim:
+`*sigh* swap again. it's fine. it's always fine.`
 
 ## Accuracy rule
 
@@ -71,66 +79,11 @@ macOS intentionally uses unused memory for caches. Memory health should consider
 - available/reclaimable memory where obtainable
 - sustained pressure over time
 
-Avoid scary or misleading wording.
+The humor is in the presentation, not the facts. Avoid scary or misleading wording; Tim can be dramatic, but the numbers must never lie.
 
-## UX direction
+## Screens
 
-The default experience should be designed for normal users.
-
-Prefer:
-
-- Green / amber / red or equivalent health states
-- Plain English
-- Short explanations
-- Helpful context
-- Clear "what is causing this?" summaries
-- Progressive disclosure
-
-Avoid making the main dashboard look like Activity Monitor.
-
-An Advanced screen may expose detailed values for technical users.
-
-## Suggested V1 screens
-
-### Overview
-- Overall Mac health
-- CPU summary
-- Memory summary
-- Top resource-consuming apps
-- Disk activity
-- Network activity
-- Short recent-history charts
-
-### Apps / Processes
-- Human-readable process/app names
-- CPU
-- Memory
-- Energy-related information if practical
-- Sort/filter
-- Highlight unusually heavy apps
-
-### History
-- Recent CPU
-- Memory pressure
-- Swap
-- Disk activity
-- Network activity
-
-Suggested periods:
-- 5 minutes
-- 30 minutes
-- 2 hours
-
-### Advanced
-- Raw-ish system values
-- Detailed process table
-- Technical labels and explanations
-
-### Settings
-- Refresh frequency
-- Start at login if feasible
-- Menu bar behavior if implemented
-- History retention
+The existing stat tabs remain the backbone (Overview, Apps, Energy, History, Advanced, Settings — see the README architecture section), reskinned toward the new flashy direction. The Tim stage strip is the new persistent element across screens. The landing page (website) is narrated by Tim walking on screen, followed by speech-bubble exposition with occasional Jimmy interjections.
 
 ## Engineering expectations
 
@@ -140,8 +93,8 @@ Suggested periods:
 - If an Apple API cannot provide a metric directly, use an appropriate lower-level macOS API or command-line/system interface only when justified.
 - Clearly document any permissions or sandbox limitations.
 - Avoid polling more frequently than necessary.
-- The monitoring app itself must remain lightweight.
-- Add tests where logic is deterministic.
+- The monitoring app itself must remain lightweight — flashy visuals must not make the app heavy.
+- Add tests where logic is deterministic (animation and dialogue sequencing should also be testable at the state-machine level).
 - Prefer small focused types and files.
 - Keep build warnings at zero where practical.
 
