@@ -58,19 +58,39 @@ final class ProcessGroupingTests: XCTestCase {
         XCTAssertNil(noEnergy.first!.energyNanojoulesDelta)
     }
 
-    private func app(pid: Int32, name: String, bundle: String?, cpu: Double, memory: UInt64, isParent: Bool, energy: UInt64? = nil) -> ProcessSnapshot {
+    func testGroupFootprintSumsFootprintsAndFallsBackToRSSPerMember() {
+        let groups = ProcessGrouping.buildGroups(from: [
+            app(pid: 100, name: "Opera", bundle: "org.opera.Opera", cpu: 4, memory: 1 << 30, isParent: true, footprint: 3 << 30),
+            helper(pid: 101, name: "Opera Helper", parent: 100, cpu: 6, memory: 1 << 29),
+        ])
+        let group = groups.first!
+        XCTAssertEqual(Int(group.footprintBytes ?? 0), (3 << 30) + (1 << 29))
+        XCTAssertEqual(group.memoryBytes, (3 << 30) + (1 << 29))
+    }
+
+    func testGroupFootprintStaysNilAndMemoryFallsBackToRSSWhenNoneReport() {
+        let groups = ProcessGrouping.buildGroups(from: [
+            app(pid: 100, name: "Opera", bundle: "org.opera.Opera", cpu: 4, memory: 1 << 30, isParent: true),
+        ])
+        let group = groups.first!
+        XCTAssertNil(group.footprintBytes)
+        XCTAssertEqual(group.memoryBytes, group.residentBytes)
+    }
+
+    private func app(pid: Int32, name: String, bundle: String?, cpu: Double, memory: UInt64, isParent: Bool, energy: UInt64? = nil, footprint: UInt64? = nil) -> ProcessSnapshot {
         ProcessSnapshot(
             id: pid,
             name: name,
             bundleIdentifier: bundle,
             cpuPercent: cpu,
             residentBytes: memory,
+            footprintBytes: footprint,
             energyNanojoulesDelta: energy,
             isApplication: isParent
         )
     }
 
-    private func helper(pid: Int32, name: String, bundle: String? = nil, parent: Int32 = 0, cpu: Double, memory: UInt64, isApplication: Bool = false, energy: UInt64? = nil) -> ProcessSnapshot {
+    private func helper(pid: Int32, name: String, bundle: String? = nil, parent: Int32 = 0, cpu: Double, memory: UInt64, isApplication: Bool = false, energy: UInt64? = nil, footprint: UInt64? = nil) -> ProcessSnapshot {
         ProcessSnapshot(
             id: pid,
             name: name,
@@ -78,6 +98,7 @@ final class ProcessGroupingTests: XCTestCase {
             parentPid: parent == 0 ? nil : parent,
             cpuPercent: cpu,
             residentBytes: memory,
+            footprintBytes: footprint,
             energyNanojoulesDelta: energy,
             isApplication: isApplication
         )

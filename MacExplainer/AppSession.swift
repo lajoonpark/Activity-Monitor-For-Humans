@@ -169,7 +169,7 @@ private final class MetricsEngine: @unchecked Sendable {
         onBatch(MetricsBatch(snapshot: snapshot, processes: processes, interpreted: interpreted))
     }
 
-    /// Keep the top 25 by CPU and top 25 by RSS, merged, for presentation.
+    /// Keep the top 25 by CPU and top 25 by memory, merged, for presentation.
     private static func topProcesses(from all: [ProcessSnapshot]) -> [ProcessSnapshot] {
         var byCPUSet = Set<Int32>()
         var merged: [ProcessSnapshot] = []
@@ -177,7 +177,7 @@ private final class MetricsEngine: @unchecked Sendable {
             byCPUSet.insert(process.id)
             merged.append(process)
         }
-        for process in all.sorted(by: { $0.residentBytes > $1.residentBytes }).prefix(25) where !byCPUSet.contains(process.id) {
+        for process in all.sorted(by: { $0.memoryBytes > $1.memoryBytes }).prefix(25) where !byCPUSet.contains(process.id) {
             merged.append(process)
         }
         return merged

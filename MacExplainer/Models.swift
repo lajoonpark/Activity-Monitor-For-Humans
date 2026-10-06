@@ -74,8 +74,19 @@ struct ProcessGroupStats: Sendable, Equatable, Identifiable {
     var isApplication: Bool
     var cpuPercent: Double
     var residentBytes: UInt64
+    var footprintBytes: UInt64?
     var energyNanojoulesDelta: UInt64?
     var processCount: Int32
+}
+
+extension ProcessSnapshot {
+    /// Physical footprint — what Activity Monitor's Memory column shows — falling back
+    /// to resident size when rusage is unavailable for the process.
+    var memoryBytes: UInt64 { footprintBytes ?? residentBytes }
+}
+
+extension ProcessGroupStats {
+    var memoryBytes: UInt64 { footprintBytes ?? residentBytes }
 }
 
 extension MemoryCounters {
@@ -152,7 +163,7 @@ enum HistoryWindow: TimeInterval, CaseIterable, Sendable {
     }
 }
 
-enum MeasurementState: Sendable {
+enum MeasurementState: Sendable, Equatable {
     case idle
     case measuring
     case active

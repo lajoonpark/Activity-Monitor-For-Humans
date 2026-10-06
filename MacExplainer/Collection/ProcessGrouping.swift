@@ -41,6 +41,10 @@ enum ProcessGrouping {
                 if let delta = member.energyNanojoulesDelta { sum += delta }
             }
             let hasEnergy = bucket.members.contains { $0.energyNanojoulesDelta != nil }
+            // Members without a footprint report contribute RSS so the group never
+            // drops a process's memory from the sum.
+            let footprintSum = bucket.members.reduce(UInt64(0)) { $0 + ($1.footprintBytes ?? $1.residentBytes) }
+            let hasFootprint = bucket.members.contains { $0.footprintBytes != nil }
             return ProcessGroupStats(
                 id: key,
                 name: bucket.root.name,
@@ -48,6 +52,7 @@ enum ProcessGrouping {
                 isApplication: bucket.root.isApplication,
                 cpuPercent: bucket.members.reduce(0) { $0 + $1.cpuPercent },
                 residentBytes: bucket.members.reduce(0) { $0 + $1.residentBytes },
+                footprintBytes: hasFootprint ? footprintSum : nil,
                 energyNanojoulesDelta: hasEnergy ? energySum : nil,
                 processCount: Int32(bucket.members.count)
             )
