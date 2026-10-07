@@ -46,7 +46,9 @@ struct AppsView: View {
             .frame(maxWidth: .infinity)
         }
         .background(Palette.paper)
-        .animation(Motion.respecting(Motion.settle, reduceMotion: reduceMotion), value: sortedGroups)
+        // Keyed to row membership, not the values: rows arriving or leaving
+        // animate, per-tick metric churn and reordering does not.
+        .animation(Motion.respecting(Motion.settle, reduceMotion: reduceMotion), value: Set(sortedGroups.map(\.id)))
         .alert("Quit \(pendingGroup?.name ?? "")?", isPresented: Binding(
             get: { pendingGroup != nil || quitError != nil },
             set: { if !$0 { pendingGroup = nil; quitError = nil } }

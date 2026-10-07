@@ -1,4 +1,3 @@
-import Charts
 import SwiftUI
 
 // MARK: - Explanations
@@ -130,13 +129,11 @@ struct MetricValue: View {
     }
 }
 
-/// Thin meter that eases to its new fill instead of jumping.
+/// Thin meter that snaps to its new fill: measured, not eased.
 struct GaugeBar: View {
     var fraction: Double
     var tint: Color = Palette.accent
     var height: CGFloat = 4
-
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         GeometryReader { proxy in
@@ -149,7 +146,6 @@ struct GaugeBar: View {
             }
         }
         .frame(height: height)
-        .animation(Motion.respecting(Motion.settle, reduceMotion: reduceMotion), value: fraction)
     }
 }
 
@@ -308,42 +304,5 @@ struct GlossaryGlyphButton: View {
         }
         .accessibilityLabel("What is \(entry.term)?")
         .accessibilityHint(entry.summary)
-    }
-}
-
-/// The live trace that runs through the readout band.
-struct PulseTrace: View {
-    let points: [HistoryPoint]
-    var keyPath: KeyPath<HistoryPoint, Double>
-    var tint: Color = Palette.accent
-
-    var body: some View {
-        Chart(points.decimatedForDrawing()) { point in
-            AreaMark(x: .value("Time", point.timestamp), y: .value("Value", point[keyPath: keyPath]))
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [tint.opacity(0.32), tint.opacity(0.02)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-                .interpolationMethod(.monotone)
-            LineMark(x: .value("Time", point.timestamp), y: .value("Value", point[keyPath: keyPath]))
-                .foregroundStyle(tint)
-                .lineStyle(StrokeStyle(lineWidth: 1.5, lineCap: .round))
-                .interpolationMethod(.monotone)
-            if point == points.last {
-                PointMark(x: .value("Time", point.timestamp), y: .value("Value", point[keyPath: keyPath]))
-                    .foregroundStyle(tint)
-                    .symbolSize(38)
-                    .shadow(color: tint.opacity(0.85), radius: 5)
-            }
-        }
-        .chartXAxis(.hidden)
-        .chartYAxis(.hidden)
-        .chartYScale(domain: 0...100)
-        .chartPlotStyle { plot in
-            plot.background(.clear)
-        }
     }
 }

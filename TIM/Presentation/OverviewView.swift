@@ -223,7 +223,9 @@ struct OverviewView: View {
             }
             .paperCard(padding: 14)
         }
-        .animation(Motion.respecting(Motion.settle, reduceMotion: reduceMotion), value: topAppGroups)
+        // Keyed to row membership, not the values: rows arriving or leaving the
+        // top five animate, per-tick metric churn and reordering does not.
+        .animation(Motion.respecting(Motion.settle, reduceMotion: reduceMotion), value: Set(topAppGroups.map(\.id)))
     }
 
     private var recentHistory: some View {
