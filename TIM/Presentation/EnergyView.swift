@@ -51,9 +51,7 @@ struct EnergyView: View {
                     Text("Using the most energy right now")
                         .font(Typeface.label(11))
                         .foregroundStyle(Palette.inkSoft)
-                    Text(group.name)
-                        .font(Typeface.proseEmphasis(19))
-                        .foregroundStyle(Palette.ink)
+                    ProcessNameCell(name: group.name, bundleIdentifier: group.bundleIdentifier, font: Typeface.proseEmphasis(19))
                         .lineLimit(1)
                 }
                 Spacer()
@@ -97,15 +95,12 @@ struct EnergyView: View {
             ForEach(energyGroups) { group in
                 LedgerRow {
                     ProcessIconView(pid: group.pid ?? -1)
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text(group.name)
-                            .font(Typeface.label(13))
-                            .foregroundStyle(Palette.ink)
-                            .lineLimit(1)
-                        Text(group.processCount == 1 ? "1 process" : "\(group.processCount) processes")
-                            .font(Typeface.label(10.5))
-                            .foregroundStyle(Palette.inkSoft)
-                    }
+                    ProcessNameCell(
+                        name: group.name,
+                        bundleIdentifier: group.bundleIdentifier,
+                        detail: group.processCount == 1 ? "1 process" : "\(group.processCount) processes",
+                        font: Typeface.label(13)
+                    )
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                     MetricValue(

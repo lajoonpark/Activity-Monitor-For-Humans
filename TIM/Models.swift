@@ -70,6 +70,7 @@ struct ProcessSnapshot: Sendable, Equatable, Identifiable {
 struct ProcessGroupStats: Sendable, Equatable, Identifiable {
     var id: String
     var name: String
+    var bundleIdentifier: String?
     var pid: Int32?
     var isApplication: Bool
     var cpuPercent: Double

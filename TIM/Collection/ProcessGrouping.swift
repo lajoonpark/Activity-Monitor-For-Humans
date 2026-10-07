@@ -48,6 +48,7 @@ enum ProcessGrouping {
             return ProcessGroupStats(
                 id: key,
                 name: bucket.root.name,
+                bundleIdentifier: bucket.root.bundleIdentifier,
                 pid: bucket.root.id,
                 isApplication: bucket.root.isApplication,
                 cpuPercent: bucket.members.reduce(0) { $0 + $1.cpuPercent },

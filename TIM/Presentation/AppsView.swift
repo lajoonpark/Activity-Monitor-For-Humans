@@ -145,15 +145,12 @@ private struct AppRow: View {
         LedgerRow {
             ProcessIconView(pid: group.pid ?? -1)
 
-            VStack(alignment: .leading, spacing: 1) {
-                Text(group.name)
-                    .font(Typeface.label(13))
-                    .foregroundStyle(Palette.ink)
-                    .lineLimit(1)
-                Text(caption)
-                    .font(Typeface.label(10.5))
-                    .foregroundStyle(Palette.inkSoft)
-            }
+            ProcessNameCell(
+                name: group.name,
+                bundleIdentifier: group.bundleIdentifier,
+                detail: caption,
+                font: Typeface.label(13)
+            )
             .frame(maxWidth: .infinity, alignment: .leading)
 
             MetricValue(text: Formatters.percent(group.cpuPercent), font: Typeface.data(12.5))

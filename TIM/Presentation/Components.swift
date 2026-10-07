@@ -3,6 +3,52 @@ import SwiftUI
 
 // MARK: - Explanations
 
+/// A process name that explains itself: click the name or the glyph beside it
+/// to open the wiki. Deliberately always visible rather than hover-revealed,
+/// because the person who needs it is the one who has no idea what they are
+/// looking at.
+struct ProcessNameCell: View {
+    let name: String
+    var bundleIdentifier: String? = nil
+    var detail: String? = nil
+    var font: Font = Typeface.label(12.5)
+
+    @Environment(AppRouter.self) private var router
+    @State private var isHovering = false
+
+    var body: some View {
+        Button {
+            router.openWiki(forName: name, bundleIdentifier: bundleIdentifier)
+        } label: {
+            HStack(spacing: 5) {
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(name)
+                        .font(font)
+                        .foregroundStyle(isHovering ? Palette.accent : Palette.ink)
+                        .lineLimit(1)
+                    if let detail {
+                        Text(detail)
+                            .font(Typeface.label(10.5))
+                            .foregroundStyle(Palette.inkSoft)
+                            .lineLimit(1)
+                    }
+                }
+                Image(systemName: "questionmark.circle")
+                    .font(.system(size: 9.5, weight: .semibold))
+                    .foregroundStyle(Palette.inkSoft.opacity(isHovering ? 0.9 : 0.45))
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help("What is \(name)?")
+        .accessibilityLabel(name)
+        .accessibilityHint("Opens the wiki to explain what this is")
+        .onHover { hovering in
+            withAnimation(Motion.reveal) { isHovering = hovering }
+        }
+    }
+}
+
 /// A metric name that explains itself: hover for a one-line answer, click for
 /// the fuller one. Every technical term in the app wears one of these.
 struct GlossaryLabel: View {
@@ -272,7 +318,7 @@ struct PulseTrace: View {
     var tint: Color = Palette.accent
 
     var body: some View {
-        Chart(points) { point in
+        Chart(points.decimatedForDrawing()) { point in
             AreaMark(x: .value("Time", point.timestamp), y: .value("Value", point[keyPath: keyPath]))
                 .foregroundStyle(
                     LinearGradient(

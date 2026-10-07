@@ -54,7 +54,7 @@ struct OverviewView: View {
                     .font(Typeface.eyebrow())
                     .tracking(1.1)
                     .foregroundStyle(Palette.readoutSoft)
-                LiveDot(tint: healthColor)
+                LiveDot(tint: healthColor, sampleTimestamp: session.current?.timestamp)
                 Spacer()
                 if let snapshot = session.current {
                     Text("CPU \(Formatters.percent(snapshot.cpu.totalUsedPercent))")
@@ -317,15 +317,12 @@ private struct TopAppRow: View {
     var body: some View {
         HStack(spacing: 10) {
             ProcessIconView(pid: group.pid ?? -1)
-            VStack(alignment: .leading, spacing: 1) {
-                Text(group.name)
-                    .font(Typeface.label(13))
-                    .foregroundStyle(Palette.ink)
-                    .lineLimit(1)
-                Text(group.processCount == 1 ? "1 process" : "\(group.processCount) processes")
-                    .font(Typeface.label(10.5))
-                    .foregroundStyle(Palette.inkSoft)
-            }
+            ProcessNameCell(
+                name: group.name,
+                bundleIdentifier: group.bundleIdentifier,
+                detail: group.processCount == 1 ? "1 process" : "\(group.processCount) processes",
+                font: Typeface.label(13)
+            )
             Spacer(minLength: 12)
             MetricValue(text: Formatters.percent(group.cpuPercent), font: Typeface.data(12.5))
                 .frame(width: 52, alignment: .trailing)
@@ -358,8 +355,12 @@ private struct PaperChartCard<Content: View>: View {
     }
 }
 
+/// Reads "live" without animating on a loop. It blinks once per new sample and
+/// holds still in between, so the motion always means "a reading just landed"
+/// and the idle cost is zero.
 struct LiveDot: View {
     var tint: Color = Palette.accent
+    var sampleTimestamp: Date?
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isBright = false
@@ -369,12 +370,11 @@ struct LiveDot: View {
             .fill(tint)
             .frame(width: 6, height: 6)
             .opacity(reduceMotion ? 1 : (isBright ? 1 : 0.45))
-            .onAppear {
+            .onChange(of: sampleTimestamp) {
                 guard !reduceMotion else { return }
-                withAnimation(Motion.pulse.repeatForever(autoreverses: true)) {
-                    isBright = true
-                }
+                withAnimation(Motion.pulse) { isBright.toggle() }
             }
+            .accessibilityLabel("Live reading")
     }
 }
 
@@ -383,7 +383,7 @@ struct ProcessIconView: View {
 
     var body: some View {
         Group {
-            if let icon = NSRunningApplication(processIdentifier: pid)?.icon {
+            if let icon = RunningAppCache.shared.entry(for: pid)?.icon {
                 Image(nsImage: icon)
                     .resizable()
             } else {
