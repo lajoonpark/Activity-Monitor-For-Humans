@@ -32,58 +32,83 @@ enum CPUPercent {
     }
 }
 
+/// Samples every process on the machine, twice over: a cheap pass that ranks
+/// everyone, then an expensive pass that only touches the handful we will show.
+///
+/// `proc_pidinfo` is cheap enough to run across all PIDs. `proc_pidpath` and
+/// `proc_pid_rusage` are not — running them for 500+ processes every tick was
+/// the single largest cost in the collection path. The UI only ever shows the
+/// top 25 by CPU and the top 25 by memory, so detail is fetched for a small
+/// candidate pool and everything else is never touched.
 final class ProcessMetricsCollector: @unchecked Sendable {
+    /// Cheap data: everything `proc_pidinfo` reports in one call.
     private struct RawSample {
         let pid: Int32
         let userTicks: UInt64
         let systemTicks: UInt64
         let residentBytes: UInt64
-        let footprintBytes: UInt64?
         let parentPid: Int32?
-        let energyNanojoules: UInt64?
+    }
+
+    /// Expensive data, fetched only for the candidate pool.
+    private struct DetailSample {
         let path: String
+        let footprintBytes: UInt64?
+        let energyNanojoules: UInt64?
     }
 
     private struct ProcessPreviousSample: Equatable {
         let totalTicks: UInt64
         let energyNanojoules: UInt64?
-        let path: String
     }
 
     private var previousSamples: [Int32: ProcessPreviousSample] = [:]
     private var previousTime: Date?
 
+    /// The UI shows 25 by CPU and 25 by memory. The memory pool is deliberately
+    /// larger: the cheap pass can only rank by resident size, while the number
+    /// on screen is the physical footprint, and the two can order differently.
+    private static let cpuPoolSize = 25
+    private static let memoryPoolSize = 40
+
     /// Returns nil on the first call so the caller can discard the baseline sample.
     func processSnapshots(now: Date) -> [ProcessSnapshot]? {
-        let current = Self.collectRawSamples()
+        let cheap = Self.collectCheapSamples()
+        var details: [Int32: DetailSample] = [:]
         defer {
-            previousSamples = Dictionary(uniqueKeysWithValues: current.map {
+            previousSamples = Dictionary(uniqueKeysWithValues: cheap.map {
                 ($0.pid, ProcessPreviousSample(
                     totalTicks: $0.userTicks + $0.systemTicks,
-                    energyNanojoules: $0.energyNanojoules,
-                    path: $0.path
+                    energyNanojoules: details[$0.pid]?.energyNanojoules
                 ))
             })
             previousTime = now
         }
+
         guard let previousTime, !previousSamples.isEmpty else { return nil }
         let interval = now.timeIntervalSince(previousTime)
         guard interval > 0 else { return nil }
 
-        return current.map { raw in
+        let pool = Self.candidatePIDs(from: cheap, previous: previousSamples, interval: interval)
+        details = Self.collectDetails(for: pool)
+
+        let cheapByPID = Dictionary(uniqueKeysWithValues: cheap.map { ($0.pid, $0) })
+        return pool.sorted().compactMap { pid -> ProcessSnapshot? in
+            guard let raw = cheapByPID[pid] else { return nil }
             let previous = previousSamples[raw.pid]
             let currentSample = ProcessCPUSample(pid: raw.pid, totalTicks: raw.userTicks + raw.systemTicks)
             let previousSample = previous.map { ProcessCPUSample(pid: raw.pid, totalTicks: $0.totalTicks) }
             let percent = CPUPercent.percent(previous: previousSample, current: currentSample, interval: interval) ?? 0
+            let detail = details[raw.pid]
             return ProcessSnapshot(
                 id: raw.pid,
-                name: Self.pathBaseName(raw.path),
+                name: Self.pathBaseName(detail?.path ?? ""),
                 bundleIdentifier: nil,
                 parentPid: raw.parentPid,
                 cpuPercent: percent,
                 residentBytes: raw.residentBytes,
-                footprintBytes: raw.footprintBytes,
-                energyNanojoulesDelta: EnergyDelta.nanojoules(previous: previous?.energyNanojoules, current: raw.energyNanojoules),
+                footprintBytes: detail?.footprintBytes,
+                energyNanojoulesDelta: EnergyDelta.nanojoules(previous: previous?.energyNanojoules, current: detail?.energyNanojoules),
                 isApplication: false
             )
         }
@@ -94,8 +119,10 @@ final class ProcessMetricsCollector: @unchecked Sendable {
     /// the sampling queue — doing so blocks collection and leaves the app stuck "measuring".
     @MainActor
     static func applyingAppMetadata(to processes: [ProcessSnapshot]) -> [ProcessSnapshot] {
-        processes.map { process in
-            let app = NSRunningApplication(processIdentifier: process.id)
+        let cache = RunningAppCache.shared
+        cache.retainOnly(Set(processes.map(\.id)))
+        return processes.map { process in
+            let app = cache.entry(for: process.id)
             return ProcessSnapshot(
                 id: process.id,
                 name: app?.localizedName ?? process.name,
@@ -105,12 +132,13 @@ final class ProcessMetricsCollector: @unchecked Sendable {
                 residentBytes: process.residentBytes,
                 footprintBytes: process.footprintBytes,
                 energyNanojoulesDelta: process.energyNanojoulesDelta,
-                isApplication: app?.activationPolicy == .regular
+                isApplication: app?.isApplication ?? false
             )
         }
     }
 
-    private static func collectRawSamples() -> [RawSample] {
+    /// Cheap pass: one `proc_pidinfo` per PID, no path or rusage lookups.
+    private static func collectCheapSamples() -> [RawSample] {
         let bufferSize = proc_listpids(UInt32(PROC_ALL_PIDS), 0, nil, 0)
         guard bufferSize > 0 else { return [] }
         var buffer = [Int32](repeating: 0, count: Int(bufferSize))
@@ -123,20 +151,58 @@ final class ProcessMetricsCollector: @unchecked Sendable {
             let pid = buffer[i]
             guard pid > 0 else { continue }
             guard let info = taskAllInfo(for: pid) else { continue }
-            let path = executablePath(for: pid)
-            let rusage = rusageSample(for: pid)
             samples.append(RawSample(
                 pid: pid,
                 userTicks: info.ptinfo.pti_total_user,
                 systemTicks: info.ptinfo.pti_total_system,
                 residentBytes: info.ptinfo.pti_resident_size,
-                footprintBytes: rusage.footprintBytes,
-                parentPid: Int32(info.pbsd.pbi_ppid),
-                energyNanojoules: rusage.energyNanojoules,
-                path: path
+                parentPid: Int32(info.pbsd.pbi_ppid)
             ))
         }
         return samples
+    }
+
+    /// Ranks everyone with data the cheap pass already has, then keeps the union
+    /// of the top CPU and top memory candidates.
+    private static func candidatePIDs(from cheap: [RawSample], previous: [Int32: ProcessPreviousSample], interval: TimeInterval) -> Set<Int32> {
+        var selected = Set<Int32>()
+        selected.reserveCapacity(cpuPoolSize + memoryPoolSize)
+
+        if interval > 0 {
+            var byCPU: [(pid: Int32, percent: Double)] = []
+            byCPU.reserveCapacity(cheap.count)
+            for raw in cheap {
+                let previousSample = previous[raw.pid].map { ProcessCPUSample(pid: raw.pid, totalTicks: $0.totalTicks) }
+                let percent = CPUPercent.percent(
+                    previous: previousSample,
+                    current: ProcessCPUSample(pid: raw.pid, totalTicks: raw.userTicks + raw.systemTicks),
+                    interval: interval
+                ) ?? 0
+                byCPU.append((raw.pid, percent))
+            }
+            for entry in byCPU.sorted(by: { $0.percent > $1.percent }).prefix(cpuPoolSize) {
+                selected.insert(entry.pid)
+            }
+        }
+
+        for raw in cheap.sorted(by: { $0.residentBytes > $1.residentBytes }).prefix(memoryPoolSize) {
+            selected.insert(raw.pid)
+        }
+        return selected
+    }
+
+    private static func collectDetails(for pids: Set<Int32>) -> [Int32: DetailSample] {
+        var details: [Int32: DetailSample] = [:]
+        details.reserveCapacity(pids.count)
+        for pid in pids {
+            let rusage = rusageSample(for: pid)
+            details[pid] = DetailSample(
+                path: executablePath(for: pid),
+                footprintBytes: rusage.footprintBytes,
+                energyNanojoules: rusage.energyNanojoules
+            )
+        }
+        return details
     }
 
     private static func taskAllInfo(for pid: Int32) -> proc_taskallinfo? {
