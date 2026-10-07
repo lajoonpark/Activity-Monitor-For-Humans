@@ -141,6 +141,32 @@ struct HistoryPoint: Sendable, Equatable, Identifiable {
     var networkBytesPerSecond: UInt64
 }
 
+extension Array where Element == HistoryPoint {
+    /// Thins a trace before it is drawn. The history store keeps every point;
+    /// only the path to the screen is reduced.
+    ///
+    /// This matters because at the 1-second sample interval a 5-minute window
+    /// holds 300 points, and every chart re-laid-out all of them on each new
+    /// sample — area, line and monotone interpolation included. Real points are
+    /// kept rather than averaged, so the shape is faithful, and the newest point
+    /// is always retained so the leading marker stays on the present.
+    func decimatedForDrawing(maxPoints: Int = 90) -> [HistoryPoint] {
+        guard maxPoints > 2, count > maxPoints else { return self }
+        let step = Int((Double(count) / Double(maxPoints - 1)).rounded(.up))
+        var result: [HistoryPoint] = []
+        result.reserveCapacity(maxPoints + 1)
+        var index = 0
+        while index < count {
+            result.append(self[index])
+            index += step
+        }
+        if let newest = last, result.last != newest {
+            result.append(newest)
+        }
+        return result
+    }
+}
+
 enum HistoryWindow: TimeInterval, CaseIterable, Sendable {
     case fiveMinutes = 300
     case thirtyMinutes = 1800
