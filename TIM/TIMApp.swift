@@ -34,7 +34,7 @@ struct ContentView: View {
 }
 
 @main
-struct MacExplainerApp: App {
+struct TIMApp: App {
     @State private var preferences = AppPreferences()
     @State private var session: AppSession
 
@@ -49,7 +49,7 @@ struct MacExplainerApp: App {
     }
 
     var body: some Scene {
-        WindowGroup("MacExplainer", id: "main") {
+        WindowGroup("TIM", id: "main") {
             ContentView()
                 .environment(session)
                 .environment(preferences)

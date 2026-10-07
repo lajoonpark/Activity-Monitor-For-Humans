@@ -27,8 +27,8 @@ jobs:
 
       - name: Verify scheme is shared / discoverable
         run: |
-          xcodebuild -project MacExplainer.xcodeproj -list || true
-          xcodebuild -project MacExplainer.xcodeproj -scheme MacExplainer -showBuildSettings \
+          xcodebuild -project TIM.xcodeproj -list || true
+          xcodebuild -project TIM.xcodeproj -scheme TIM -showBuildSettings \
             | grep -E 'MARKETING_VERSION|PRODUCT_BUNDLE_IDENTIFIER' || true
 
       - name: Build and package DMG
