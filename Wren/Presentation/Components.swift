@@ -5,7 +5,8 @@ import SwiftUI
 /// A process name that explains itself: click the name or the glyph beside it
 /// to open the wiki. Deliberately always visible rather than hover-revealed,
 /// because the person who needs it is the one who has no idea what they are
-/// looking at.
+/// looking at. Hovering the name also holds updates still, so the name and its
+/// tooltip stay put long enough to read and click.
 struct ProcessNameCell: View {
     let name: String
     var bundleIdentifier: String? = nil
@@ -13,7 +14,9 @@ struct ProcessNameCell: View {
     var font: Font = Typeface.label(12.5)
 
     @Environment(AppRouter.self) private var router
+    @Environment(AppSession.self) private var session
     @State private var isHovering = false
+    @State private var holdID = UUID()
 
     var body: some View {
         Button {
@@ -44,6 +47,10 @@ struct ProcessNameCell: View {
         .accessibilityHint("Opens the wiki to explain what this is")
         .onHover { hovering in
             withAnimation(Motion.reveal) { isHovering = hovering }
+            session.setReadHold(holdID, hovering)
+        }
+        .onDisappear {
+            session.setReadHold(holdID, false)
         }
     }
 }
@@ -57,7 +64,9 @@ struct GlossaryLabel: View {
     var tint: Color = Palette.inkSoft
     var showsGlyph: Bool = true
 
+    @Environment(AppSession.self) private var session
     @State private var showsDetail = false
+    @State private var holdID = UUID()
 
     var body: some View {
         Button {
@@ -79,6 +88,12 @@ struct GlossaryLabel: View {
         .help(entry.summary)
         .popover(isPresented: $showsDetail, arrowEdge: .bottom) {
             GlossaryPopover(entry: entry)
+        }
+        .onChange(of: showsDetail) { _, presented in
+            session.setReadHold(holdID, presented)
+        }
+        .onDisappear {
+            session.setReadHold(holdID, false)
         }
         .accessibilityLabel(entry.term)
         .accessibilityHint(entry.summary)
@@ -285,7 +300,9 @@ struct SortableHeader: View {
 struct GlossaryGlyphButton: View {
     let entry: GlossaryEntry
 
+    @Environment(AppSession.self) private var session
     @State private var showsDetail = false
+    @State private var holdID = UUID()
 
     var body: some View {
         Button {
@@ -302,7 +319,40 @@ struct GlossaryGlyphButton: View {
         .popover(isPresented: $showsDetail, arrowEdge: .bottom) {
             GlossaryPopover(entry: entry)
         }
+        .onChange(of: showsDetail) { _, presented in
+            session.setReadHold(holdID, presented)
+        }
+        .onDisappear {
+            session.setReadHold(holdID, false)
+        }
         .accessibilityLabel("What is \(entry.term)?")
         .accessibilityHint(entry.summary)
+    }
+}
+
+// MARK: - Chrome
+
+/// Freezes sampling so a reading stays still. Global chrome, because the need
+/// to read a value without it moving is not tied to one tab. Icon-only: the
+/// title bar shares space with the tab bar, and the pause glyph is unambiguous.
+struct PauseButton: View {
+    @Environment(AppSession.self) private var session
+
+    var body: some View {
+        Button {
+            withAnimation(Motion.reveal) { session.togglePaused() }
+        } label: {
+            Image(systemName: session.isPaused ? "play.fill" : "pause.fill")
+                .font(.system(size: 10, weight: .bold))
+                .foregroundStyle(session.isPaused ? Palette.accent : Palette.inkSoft)
+                .frame(width: 26, height: 22)
+                .background(
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .fill(session.isPaused ? Palette.accent.opacity(0.12) : Palette.ink.opacity(0.05))
+                )
+        }
+        .buttonStyle(.plain)
+        .help(session.isPaused ? "Resume sampling" : "Pause sampling so the numbers hold still")
+        .accessibilityLabel(session.isPaused ? "Resume sampling" : "Pause sampling")
     }
 }

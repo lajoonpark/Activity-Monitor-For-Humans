@@ -17,10 +17,12 @@ final class AppSession {
     var interpreted: InterpretedHealth?
     var historyPoints: [HistoryPoint] = []
     var selectedWindow: HistoryWindow = .thirtyMinutes
+    private(set) var isPaused = false
 
     let preferences: AppPreferences
 
     private let engine = MetricsEngine()
+    private var readHolds: Set<UUID> = []
 
     init(preferences: AppPreferences) {
         self.preferences = preferences
@@ -35,19 +37,40 @@ final class AppSession {
         current?.memory.usedBytes ?? 0
     }
 
+    /// True while the reader is mid-read: a row under the pointer or an open
+    /// glossary card. Publishing stops so nothing moves under them.
+    var isReadHeld: Bool {
+        !readHolds.isEmpty
+    }
+
     func start() {
         guard state == .idle else { return }
         state = .measuring
-        engine.start(interval: preferences.sampleInterval) { [weak self] batch in
-            Task { @MainActor [weak self] in
-                self?.publish(batch)
-            }
-        }
+        runEngine()
     }
 
     func stop() {
         engine.stop()
         state = .idle
+    }
+
+    func togglePaused() {
+        isPaused.toggle()
+        if isPaused {
+            engine.stop()
+        } else {
+            runEngine()
+        }
+    }
+
+    /// Holders are keyed per view and clear themselves when they disappear, so
+    /// a row or card that leaves the hierarchy can never freeze the app.
+    func setReadHold(_ id: UUID, _ held: Bool) {
+        if held {
+            readHolds.insert(id)
+        } else {
+            readHolds.remove(id)
+        }
     }
 
     func setSampleInterval(_ interval: TimeInterval) {
@@ -61,7 +84,16 @@ final class AppSession {
         }
     }
 
+    private func runEngine() {
+        engine.start(interval: preferences.sampleInterval) { [weak self] batch in
+            Task { @MainActor [weak self] in
+                self?.publish(batch)
+            }
+        }
+    }
+
     private func publish(_ batch: MetricsBatch) {
+        guard !isPaused && !isReadHeld else { return }
         current = batch.snapshot
         processes = ProcessMetricsCollector.applyingAppMetadata(to: batch.processes)
         appGroups = ProcessGrouping.buildGroups(from: processes)
@@ -96,7 +128,11 @@ private final class MetricsEngine: @unchecked Sendable {
 
     func setInterval(_ interval: TimeInterval) {
         self.interval = interval
-        scheduleTimer(interval: interval)
+        // While stopped (paused), just remember the interval; the next start
+        // schedules with it. Otherwise changing the interval would resume sampling.
+        if timer != nil {
+            scheduleTimer(interval: interval)
+        }
     }
 
     func stop() {

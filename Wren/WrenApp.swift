@@ -7,6 +7,7 @@ var isRunningUnitTests: Bool {
 
 struct ContentView: View {
     @Environment(AppRouter.self) private var router
+    @Environment(AppSession.self) private var session
 
     var body: some View {
         if isRunningUnitTests {
@@ -38,6 +39,19 @@ struct ContentView: View {
             }
             .tint(Palette.accent)
             .frame(minWidth: 720, minHeight: 480)
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    HStack(spacing: 8) {
+                        if session.isReadHeld && !session.isPaused {
+                            Text("Holding")
+                                .font(Typeface.label(10))
+                                .foregroundStyle(Palette.inkSoft.opacity(0.75))
+                                .help("Updates hold while you read a name or keep a card open")
+                        }
+                        PauseButton()
+                    }
+                }
+            }
             .onAppear {
                 NSApp.activate(ignoringOtherApps: true)
             }
