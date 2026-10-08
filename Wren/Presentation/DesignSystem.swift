@@ -21,12 +21,19 @@ enum Palette {
 
     static func health(_ level: HealthLevel) -> Color {
         switch level {
-        case .normal: return Color(light: 0x3E8F63, dark: 0x5CBE8B)
-        case .moderateLoad: return Color(light: 0xB7832E, dark: 0xDCA84E)
-        case .highLoad: return Color(light: 0xB96A2E, dark: 0xDE9254)
-        case .potentialProblem: return Color(light: 0xB2453E, dark: 0xE0706A)
+        case .normal: return healthNormal
+        case .moderateLoad: return healthModerateLoad
+        case .highLoad: return healthHighLoad
+        case .potentialProblem: return healthPotentialProblem
         }
     }
+
+    // Cached like every other palette entry. Building these per call allocated
+    // a fresh dynamic NSColor for each row on each sample.
+    private static let healthNormal = Color(light: 0x3E8F63, dark: 0x5CBE8B)
+    private static let healthModerateLoad = Color(light: 0xB7832E, dark: 0xDCA84E)
+    private static let healthHighLoad = Color(light: 0xB96A2E, dark: 0xDE9254)
+    private static let healthPotentialProblem = Color(light: 0xB2453E, dark: 0xE0706A)
 }
 
 /// Two voices: New York for sentences a person wrote, rounded sans for
