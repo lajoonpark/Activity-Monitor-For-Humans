@@ -57,7 +57,7 @@ struct OverviewView: View {
                     .font(Typeface.eyebrow())
                     .tracking(1.1)
                     .foregroundStyle(Palette.readoutSoft)
-                LiveDot(tint: healthColor, sampleTimestamp: session.current?.timestamp)
+                LiveDot(tint: healthColor)
                 Spacer()
                 if let snapshot = session.current {
                     Text("CPU \(Formatters.percent(snapshot.cpu.totalUsedPercent))")
@@ -212,7 +212,10 @@ struct OverviewView: View {
                 .paperCard()
             }
         }
-        .animation(Motion.respecting(Motion.drift, reduceMotion: reduceMotion), value: session.interpreted?.reasons)
+        // Keyed to the health level, not the reason strings: signals like
+        // disk activity can flap between adjacent samples, and animating that
+        // flap re-renders the window every frame (see `Motion`).
+        .animation(Motion.respecting(Motion.drift, reduceMotion: reduceMotion), value: session.interpreted?.level)
     }
 
     private var topApps: some View {
@@ -222,14 +225,10 @@ struct OverviewView: View {
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(groups) { group in
                     TopAppRow(group: group)
-                        .transition(.opacity)
                 }
             }
             .paperCard(padding: 14)
         }
-        // Keyed to row membership, not the values: rows arriving or leaving the
-        // top five animate, per-tick metric churn and reordering does not.
-        .animation(Motion.respecting(Motion.settle, reduceMotion: reduceMotion), value: Set(groups.map(\.id)))
     }
 
     private func recentHistory(trace: [HistoryPoint]) -> some View {
@@ -320,6 +319,9 @@ private struct ReasonRow: View {
 private struct TopAppRow: View {
     let group: ProcessGroupStats
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isAppearing = true
+
     var body: some View {
         HStack(spacing: 10) {
             ProcessIconView(pid: group.pid ?? -1)
@@ -336,6 +338,12 @@ private struct TopAppRow: View {
                 .frame(width: 68, alignment: .trailing)
         }
         .padding(.vertical, 7)
+        .opacity(isAppearing ? 0 : 1)
+        .onAppear {
+            withAnimation(Motion.respecting(Motion.arrive, reduceMotion: reduceMotion)) {
+                isAppearing = false
+            }
+        }
     }
 }
 
@@ -361,25 +369,16 @@ private struct PaperChartCard<Content: View>: View {
     }
 }
 
-/// Reads "live" without animating on a loop. It blinks once per new sample and
-/// holds still in between, so the motion always means "a reading just landed"
-/// and the idle cost is zero.
+/// Reads "live" without animating on a loop. It holds steady in the health
+/// tint; the moving trace and changing numbers carry the liveness, so the idle
+/// cost is zero.
 struct LiveDot: View {
     var tint: Color = Palette.accent
-    var sampleTimestamp: Date?
-
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var isBright = false
 
     var body: some View {
         Circle()
             .fill(tint)
             .frame(width: 6, height: 6)
-            .opacity(reduceMotion ? 1 : (isBright ? 1 : 0.45))
-            .onChange(of: sampleTimestamp) {
-                guard !reduceMotion else { return }
-                withAnimation(Motion.pulse) { isBright.toggle() }
-            }
             .accessibilityLabel("Live reading")
     }
 }

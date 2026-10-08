@@ -3,7 +3,6 @@ import SwiftUI
 struct EnergyView: View {
     @Environment(AppSession.self) private var session
     @Environment(AppPreferences.self) private var preferences
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var energyGroups: [ProcessGroupStats] {
         session.appGroups
@@ -22,7 +21,6 @@ struct EnergyView: View {
 
                 if let top = topGroup {
                     calloutCard(top)
-                        .transition(.opacity.combined(with: .move(edge: .top)))
                 }
 
                 if session.state != .active {
@@ -40,7 +38,6 @@ struct EnergyView: View {
             .frame(maxWidth: .infinity)
         }
         .background(Palette.paper)
-        .animation(Motion.respecting(Motion.settle, reduceMotion: reduceMotion), value: topGroup?.id)
     }
 
     private func calloutCard(_ group: ProcessGroupStats) -> some View {

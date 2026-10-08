@@ -1,38 +1,13 @@
 import SwiftUI
 
-/// How a row travels to its new rank in the leaderboard. Short moves glide so
-/// the ledger reads as re-sorting; long moves fade so a row never streaks
-/// across half the list.
-enum RowTravel {
-    case glide, fade
-
-    static let glideSpots = 4
-
-    static func classify(fromRank: Int, toRank: Int) -> RowTravel {
-        abs(fromRank - toRank) <= glideSpots ? .glide : .fade
-    }
-}
-
-/// One rendered row. The token turns a fade into a change of identity, which
-/// is how SwiftUI is told to let a row go and bring it back rather than move it.
-private struct LeaderboardRow: Identifiable {
-    let group: ProcessGroupStats
-    var token: Int
-    let transition: AnyTransition
-
-    var id: String { "\(group.id)#\(token)" }
-}
-
 struct AppsView: View {
     @Environment(AppSession.self) private var session
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var sortKey: SortKey = .cpu
     @State private var sortAscending = false
     @State private var pendingGroup: ProcessGroupStats?
     @State private var quitError: String?
-    @State private var rows: [LeaderboardRow] = []
-    @State private var ranks: [String: Int] = [:]
+    @State private var rows: [ProcessGroupStats] = []
 
     enum SortKey { case name, cpu, memory }
 
@@ -119,47 +94,21 @@ struct AppsView: View {
                     .frame(width: 62)
             }
 
-            ForEach(rows) { row in
-                AppRow(group: row.group) {
-                    pendingGroup = row.group
+            ForEach(rows) { group in
+                AppRow(group: group) {
+                    pendingGroup = group
                 }
-                .transition(row.transition)
             }
         }
         .paperCard(padding: 8)
     }
 
-    /// Rebuilds the rendered rows, gliding near moves and fading far ones.
-    /// A fade is expressed as a new identity so the row is released and
-    /// returned instead of dragged across the list.
+    /// Rows snap to their new rank: reordering happens on nearly every sample,
+    /// and animating per-sample churn keeps the render loop redrawing at
+    /// display refresh (see `Motion`). A row that has just arrived fades
+    /// itself in via `AppRow`; one that leaves simply goes.
     private func recomputeRows() {
-        let groups = sortedGroups
-        // A long move fades out and then back in rather than streaking across
-        // the list. Under Reduce Motion the fade is brief and does not move.
-        let fade: AnyTransition = reduceMotion
-            ? .asymmetric(
-                insertion: .opacity.animation(.easeOut(duration: 0.2).delay(0.2)),
-                removal: .opacity.animation(.easeOut(duration: 0.2))
-            )
-            : .asymmetric(
-                insertion: .opacity.animation(Motion.drift.delay(0.2)),
-                removal: .opacity.animation(Motion.drift)
-            )
-        let arrive: AnyTransition = .opacity.combined(with: .move(edge: .top))
-        let tokens = Dictionary(uniqueKeysWithValues: rows.map { ($0.group.id, $0.token) })
-
-        var updated: [LeaderboardRow] = []
-        updated.reserveCapacity(groups.count)
-        for (rank, group) in groups.enumerated() {
-            let travel = ranks[group.id].map { RowTravel.classify(fromRank: $0, toRank: rank) } ?? .glide
-            let token = (tokens[group.id] ?? 0) + (travel == .fade ? 1 : 0)
-            updated.append(LeaderboardRow(group: group, token: token, transition: travel == .fade ? fade : arrive))
-        }
-
-        withAnimation(Motion.respecting(Motion.settle, reduceMotion: reduceMotion)) {
-            rows = updated
-        }
-        ranks = Dictionary(uniqueKeysWithValues: groups.enumerated().map { ($1.id, $0) })
+        rows = sortedGroups
     }
 
     private var waitingState: some View {
@@ -200,7 +149,9 @@ private struct AppRow: View {
     let group: ProcessGroupStats
     let onQuit: () -> Void
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isHovering = false
+    @State private var isAppearing = true
 
     var body: some View {
         LedgerRow {
@@ -234,6 +185,12 @@ private struct AppRow: View {
                 .disabled(ProcessActions.isProtected(group: group))
                 .help(ProcessActions.isProtected(group: group) ? "This app can't be quit from here." : "Quit \(group.name)")
                 .accessibilityHidden(!isHovering)
+        }
+        .opacity(isAppearing ? 0 : 1)
+        .onAppear {
+            withAnimation(Motion.respecting(Motion.arrive, reduceMotion: reduceMotion)) {
+                isAppearing = false
+            }
         }
         .onHover { hovering in
             withAnimation(Motion.reveal) { isHovering = hovering }

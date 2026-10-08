@@ -52,13 +52,16 @@ enum Metrics {
 
 enum Motion {
     static let settle = Animation.spring(response: 0.38, dampingFraction: 0.86)
-    // Per-tick animations must finish well inside the sample interval: an
-    // animation still in flight keeps the render loop awake at display refresh,
-    // which is the window's dominant CPU cost at the 1-second interval.
     static let drift = Animation.easeInOut(duration: 0.2)
     static let reveal = Animation.easeOut(duration: 0.28)
-    static let pulse = Animation.easeInOut(duration: 0.35)
+    static let arrive = Animation.easeOut(duration: 0.15)
 
+    /// These are for moments that happen once — a hover, a tab change, a row
+    /// arriving — never for values that change on every sample. An animation
+    /// in flight re-rasterizes the window's text at display refresh and keeps
+    /// glyph bitmaps churning in the heap; one 0.2s easing per one-second
+    /// tick measured +40% CPU and +140MB. Per-sample values snap instead.
+    ///
     /// Respects Reduce Motion by collapsing animation to an instant change.
     static func respecting(_ animation: Animation, reduceMotion: Bool) -> Animation {
         reduceMotion ? .linear(duration: 0) : animation

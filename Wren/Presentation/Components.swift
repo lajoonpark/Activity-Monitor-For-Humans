@@ -128,7 +128,9 @@ struct GlossaryPopover: View {
 
 // MARK: - Values
 
-/// Numeric readout whose digits roll over instead of snapping.
+/// Numeric readout that snaps to its new value, like the gauges beside it:
+/// measured, not eased. Values change on every sample, and animating them
+/// redraws the window's glyphs at display refresh — see `Motion`.
 struct MetricValue: View {
     let text: String
     var font: Font = Typeface.data(13)
@@ -139,8 +141,6 @@ struct MetricValue: View {
             .font(font)
             .monospacedDigit()
             .foregroundStyle(color)
-            .contentTransition(.numericText())
-            .animation(Motion.drift, value: text)
     }
 }
 
