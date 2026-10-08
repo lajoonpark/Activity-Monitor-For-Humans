@@ -1,5 +1,28 @@
 import SwiftUI
 
+/// How a row travels to its new rank in the leaderboard. Short moves glide so
+/// the ledger reads as re-sorting; long moves fade so a row never streaks
+/// across half the list.
+enum RowTravel {
+    case glide, fade
+
+    static let glideSpots = 4
+
+    static func classify(fromRank: Int, toRank: Int) -> RowTravel {
+        abs(fromRank - toRank) <= glideSpots ? .glide : .fade
+    }
+}
+
+/// One rendered row. The token turns a fade into a change of identity, which
+/// is how SwiftUI is told to let a row go and bring it back rather than move it.
+private struct LeaderboardRow: Identifiable {
+    let group: ProcessGroupStats
+    var token: Int
+    let transition: AnyTransition
+
+    var id: String { "\(group.id)#\(token)" }
+}
+
 struct AppsView: View {
     @Environment(AppSession.self) private var session
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -8,6 +31,8 @@ struct AppsView: View {
     @State private var sortAscending = false
     @State private var pendingGroup: ProcessGroupStats?
     @State private var quitError: String?
+    @State private var rows: [LeaderboardRow] = []
+    @State private var ranks: [String: Int] = [:]
 
     enum SortKey { case name, cpu, memory }
 
@@ -46,9 +71,10 @@ struct AppsView: View {
             .frame(maxWidth: .infinity)
         }
         .background(Palette.paper)
-        // Keyed to row membership, not the values: rows arriving or leaving
-        // animate, per-tick metric churn and reordering does not.
-        .animation(Motion.respecting(Motion.settle, reduceMotion: reduceMotion), value: Set(sortedGroups.map(\.id)))
+        .onAppear { recomputeRows() }
+        .onChange(of: session.appGroups) { _, _ in recomputeRows() }
+        .onChange(of: sortKey) { _, _ in recomputeRows() }
+        .onChange(of: sortAscending) { _, _ in recomputeRows() }
         .alert("Quit \(pendingGroup?.name ?? "")?", isPresented: Binding(
             get: { pendingGroup != nil || quitError != nil },
             set: { if !$0 { pendingGroup = nil; quitError = nil } }
@@ -93,14 +119,47 @@ struct AppsView: View {
                     .frame(width: 62)
             }
 
-            ForEach(sortedGroups) { group in
-                AppRow(group: group) {
-                    pendingGroup = group
+            ForEach(rows) { row in
+                AppRow(group: row.group) {
+                    pendingGroup = row.group
                 }
-                .transition(.opacity.combined(with: .move(edge: .top)))
+                .transition(row.transition)
             }
         }
         .paperCard(padding: 8)
+    }
+
+    /// Rebuilds the rendered rows, gliding near moves and fading far ones.
+    /// A fade is expressed as a new identity so the row is released and
+    /// returned instead of dragged across the list.
+    private func recomputeRows() {
+        let groups = sortedGroups
+        // A long move fades out and then back in rather than streaking across
+        // the list. Under Reduce Motion the fade is brief and does not move.
+        let fade: AnyTransition = reduceMotion
+            ? .asymmetric(
+                insertion: .opacity.animation(.easeOut(duration: 0.2).delay(0.2)),
+                removal: .opacity.animation(.easeOut(duration: 0.2))
+            )
+            : .asymmetric(
+                insertion: .opacity.animation(Motion.drift.delay(0.2)),
+                removal: .opacity.animation(Motion.drift)
+            )
+        let arrive: AnyTransition = .opacity.combined(with: .move(edge: .top))
+        let tokens = Dictionary(uniqueKeysWithValues: rows.map { ($0.group.id, $0.token) })
+
+        var updated: [LeaderboardRow] = []
+        updated.reserveCapacity(groups.count)
+        for (rank, group) in groups.enumerated() {
+            let travel = ranks[group.id].map { RowTravel.classify(fromRank: $0, toRank: rank) } ?? .glide
+            let token = (tokens[group.id] ?? 0) + (travel == .fade ? 1 : 0)
+            updated.append(LeaderboardRow(group: group, token: token, transition: travel == .fade ? fade : arrive))
+        }
+
+        withAnimation(Motion.respecting(Motion.settle, reduceMotion: reduceMotion)) {
+            rows = updated
+        }
+        ranks = Dictionary(uniqueKeysWithValues: groups.enumerated().map { ($1.id, $0) })
     }
 
     private var waitingState: some View {
