@@ -1,30 +1,27 @@
-# Shared Project Context — TIM (The Ironic Monitor)
+# Shared Project Context — Wren
 
 ## What this project is
 
-TIM ("The Ironic Monitor") is a flashy, game-inspired macOS activity monitor with a personality. It is a fork of Activity-Monitor-For-Humans ("MacExplainer"): the metrics engine is reused as-is, and the personality/presentation layer is the new work.
+Wren is a calm, nature-inspired macOS activity monitor that explains what the machine is doing in plain language. Like the bird it is named after — small, quiet, with an outsized song — it watches silently and speaks up only when something matters.
 
-Full vision and characters live in [`project-tim-idea.md`](project-tim-idea.md).
+Full vision and design direction live in [`project-wren-idea.md`](project-wren-idea.md).
 
 ## Product goal
 
-Build a lightweight native macOS app that a user can download and install as a `.dmg`, which collects useful Mac system metrics and presents them in a way that is *fun* — satisfying enough that you could sit there clicking, scrolling, and moving the cursor around without getting bored — while remaining accurate and honest about what the machine is actually doing.
+Build a lightweight native macOS app that a user can download and install as a `.dmg`, which collects useful Mac system metrics and presents them in a way that is *reassuring and readable* — honest about what the machine is actually doing, calm about what is normal, and clear about what is not.
 
-Tim Howard, an animated stick man, is the face of the app. He works at TIM compiling data and keeping the animations running. He is a little bored and tired of his job. His dream is to move to Italy and get a pay raise from his boss, Jimmy "the boss" Nelson — a grumpy man with a soft side who has never given him one in 60 years. Tim's coworkers make fun of him because his name is Tim and he works at TIM.
+Wren has no mascot, no characters, and no fiction layer. Its personality is in the writing: plain, warm, occasionally wry, never dramatic. The app observes; it does not perform.
 
-Other characters (Jimmy, coworkers) are **never shown on screen**. When they speak, their speech bubbles come in from the side of the window.
+## Design direction (2026-10-08 decision)
 
-## Design direction (2026-10-07 decision)
+Wren replaces the earlier flashy, game-inspired concept. The direction is calm, light, and nature-inspired — a small bird watching your Mac.
 
-Tim is an animated **overlay on a normal stats UI**, not a full scene where the metrics are props. Stats stay front and center; the personality is commentary.
-
-- A persistent "stage strip" (bottom or side of the window) where Tim walks in, idles, works, and reacts to what the machine is doing ("CPU at 90%... this is fine.").
-- Off-screen conversations with Jimmy and coworkers arrive as speech bubbles poking in from the window edge.
-- Everything should have "juice": numbers that pop, hover/click feedback, satisfying transitions. Lean into video-game feel and indie-solo-dev charm.
-- Lots of easter eggs (invent them as we go).
-- The app must not become a toy that hides the data — the point is still to know what your Mac is doing.
-
-The Paper & Panel design language from the parent project is expected to give way to something flashier; that direction is still to be defined.
+- **Paper & Panel** is the visual language: warm paper surfaces, soft ink, quiet panels, typography that reads like a well-set page rather than a dashboard.
+- Stats are front and center. Everything decorative earns its place or goes.
+- Motion is gentle and rare: values ease in, charts drift, transitions are soft. Nothing bounces, pops, flashes, or demands attention. Respect `accessibilityReduceMotion`.
+- No mascot, no cast, no speech bubbles, no stage strip. Commentary is carried by the writing itself.
+- The tone rule: calm about what is normal, plain about what is worth knowing, never alarming for effect. The humor, if any, is dry and in the margins.
+- Restraint is the identity. The interesting part of Wren is that nothing is shouting.
 
 ## Technical direction
 
@@ -33,7 +30,7 @@ Use:
 - Swift
 - SwiftUI
 - Native macOS APIs wherever practical
-- Swift Charts for graphs/history (with more visual juice than stock charts where practical)
+- Swift Charts for graphs/history
 - A modular architecture
 - No Electron
 - No browser wrapper
@@ -49,9 +46,8 @@ Keep these concerns separate:
 2. Metric storage/history
 3. Interpretation / health scoring
 4. Presentation / UI
-5. Tim / personality layer (reacts to metrics and interpretation signals; never computes them)
 
-Raw metrics never mix with human-readable judgments, and Tim's lines are driven by the same signals the UI uses — he never invents his own reading of the machine.
+Raw metrics never mix with human-readable judgments. The explanation/glossary layer turns interpretation signals into plain language — it never invents its own reading of the machine.
 
 For example:
 
@@ -63,9 +59,6 @@ Interpretation:
 
 UI:
 `Your Mac is managing memory normally.`
-
-Tim:
-`*sigh* swap again. it's fine. it's always fine.`
 
 ## Accuracy rule
 
@@ -79,11 +72,11 @@ macOS intentionally uses unused memory for caches. Memory health should consider
 - available/reclaimable memory where obtainable
 - sustained pressure over time
 
-The humor is in the presentation, not the facts. Avoid scary or misleading wording; Tim can be dramatic, but the numbers must never lie.
+The tone is calm; the facts are exact. Avoid scary or misleading wording, and never soften a real problem into false comfort — the numbers must never lie.
 
 ## Screens
 
-The existing stat tabs remain the backbone (Overview, Apps, Energy, History, Advanced, Settings — see the README architecture section), reskinned toward the new flashy direction. The Tim stage strip is the new persistent element across screens. The landing page (website) is narrated by Tim walking on screen, followed by speech-bubble exposition with occasional Jimmy interjections.
+The tabs are the backbone: Overview, Apps, Energy, History, Wiki, Advanced, and Settings (see the README features section). The Wiki is the home of "what is this process?" answers and is linked from process rows ("What is this?"). All screens follow the Paper & Panel language.
 
 ## Engineering expectations
 
@@ -93,8 +86,8 @@ The existing stat tabs remain the backbone (Overview, Apps, Energy, History, Adv
 - If an Apple API cannot provide a metric directly, use an appropriate lower-level macOS API or command-line/system interface only when justified.
 - Clearly document any permissions or sandbox limitations.
 - Avoid polling more frequently than necessary.
-- The monitoring app itself must remain lightweight — flashy visuals must not make the app heavy.
-- Add tests where logic is deterministic (animation and dialogue sequencing should also be testable at the state-machine level).
+- The monitoring app itself must remain lightweight — calm visuals must not make the app heavy.
+- Add tests where logic is deterministic.
 - Prefer small focused types and files.
 - Keep build warnings at zero where practical.
 

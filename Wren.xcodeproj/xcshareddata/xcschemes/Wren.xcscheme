@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "CA0D00000000000000000010"
-               BuildableName = "TIM.app"
-               BlueprintName = "TIM"
-               ReferencedContainer = "container:TIM.xcodeproj">
+               BuildableName = "Wren.app"
+               BlueprintName = "Wren"
+               ReferencedContainer = "container:Wren.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "CA0D00000000000000000011"
-               BuildableName = "TIMTests.xctest"
-               BlueprintName = "TIMTests"
-               ReferencedContainer = "container:TIM.xcodeproj">
+               BuildableName = "WrenTests.xctest"
+               BlueprintName = "WrenTests"
+               ReferencedContainer = "container:Wren.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CA0D00000000000000000010"
-            BuildableName = "TIM.app"
-            BlueprintName = "TIM"
-            ReferencedContainer = "container:TIM.xcodeproj">
+            BuildableName = "Wren.app"
+            BlueprintName = "Wren"
+            ReferencedContainer = "container:Wren.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CA0D00000000000000000010"
-            BuildableName = "TIM.app"
-            BlueprintName = "TIM"
-            ReferencedContainer = "container:TIM.xcodeproj">
+            BuildableName = "Wren.app"
+            BlueprintName = "Wren"
+            ReferencedContainer = "container:Wren.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

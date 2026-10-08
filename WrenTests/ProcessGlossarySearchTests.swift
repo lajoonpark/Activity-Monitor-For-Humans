@@ -1,5 +1,5 @@
 import XCTest
-@testable import TIM
+@testable import Wren
 
 final class ProcessGlossarySearchTests: XCTestCase {
     private func topEntry(_ query: String) -> ProcessGlossaryEntry? {

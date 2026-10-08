@@ -1,5 +1,5 @@
 import XCTest
-@testable import TIM
+@testable import Wren
 
 final class EnergyDeltaTests: XCTestCase {
     func testMissingPreviousReturnsNil() {

@@ -1,5 +1,5 @@
 import XCTest
-@testable import TIM
+@testable import Wren
 
 final class MetricsHistoryStoreTests: XCTestCase {
     private func point(at date: Date, cpu: Double = 10, swapUsed: UInt64 = 0) -> HistoryPoint {

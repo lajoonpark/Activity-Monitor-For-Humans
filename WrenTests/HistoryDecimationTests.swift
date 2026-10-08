@@ -1,5 +1,5 @@
 import XCTest
-@testable import TIM
+@testable import Wren
 
 final class HistoryDecimationTests: XCTestCase {
     private func makePoints(_ count: Int) -> [HistoryPoint] {

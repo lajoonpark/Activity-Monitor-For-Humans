@@ -1,5 +1,5 @@
 import XCTest
-@testable import TIM
+@testable import Wren
 
 final class CPUDeltaTests: XCTestCase {
     func testPercentFromTickDelta() {

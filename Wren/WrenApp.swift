@@ -46,7 +46,7 @@ struct ContentView: View {
 }
 
 @main
-struct TIMApp: App {
+struct WrenApp: App {
     @State private var preferences = AppPreferences()
     @State private var session: AppSession
     @State private var router = AppRouter()
@@ -62,7 +62,7 @@ struct TIMApp: App {
     }
 
     var body: some Scene {
-        WindowGroup("TIM", id: "main") {
+        WindowGroup("Wren", id: "main") {
             ContentView()
                 .environment(session)
                 .environment(preferences)
