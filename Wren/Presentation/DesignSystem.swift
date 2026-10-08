@@ -52,9 +52,12 @@ enum Metrics {
 
 enum Motion {
     static let settle = Animation.spring(response: 0.38, dampingFraction: 0.86)
-    static let drift = Animation.easeInOut(duration: 0.45)
+    // Per-tick animations must finish well inside the sample interval: an
+    // animation still in flight keeps the render loop awake at display refresh,
+    // which is the window's dominant CPU cost at the 1-second interval.
+    static let drift = Animation.easeInOut(duration: 0.2)
     static let reveal = Animation.easeOut(duration: 0.28)
-    static let pulse = Animation.easeInOut(duration: 0.9)
+    static let pulse = Animation.easeInOut(duration: 0.35)
 
     /// Respects Reduce Motion by collapsing animation to an instant change.
     static func respecting(_ animation: Animation, reduceMotion: Bool) -> Animation {

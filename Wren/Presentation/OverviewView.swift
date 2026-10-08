@@ -6,7 +6,10 @@ struct OverviewView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        ScrollView {
+        // One slice and one decimation per update feeds the readout trace and
+        // both history charts — each consumer re-deriving them was per-tick churn.
+        let trace = recentFiveMinutes.decimatedForDrawing()
+        return ScrollView {
             VStack(alignment: .leading, spacing: 22) {
                 switch session.state {
                 case .idle:
@@ -17,10 +20,10 @@ struct OverviewView: View {
                     measuring
                         .transition(.opacity)
                 case .active:
-                    readout
+                    readout(trace: trace)
                     whatIsHappening
                     topApps
-                    recentHistory
+                    recentHistory(trace: trace)
                 }
             }
             .padding(20)
@@ -47,7 +50,7 @@ struct OverviewView: View {
 
     // MARK: - The readout
 
-    private var readout: some View {
+    private func readout(trace: [HistoryPoint]) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text("Live reading")
@@ -80,8 +83,8 @@ struct OverviewView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                if !recentFiveMinutes.isEmpty {
-                    PulseTrace(points: recentFiveMinutes, keyPath: \.cpuUsedPercent, tint: Palette.accent)
+                if !trace.isEmpty {
+                    PulseTrace(points: trace, keyPath: \.cpuUsedPercent, tint: Palette.accent)
                         .frame(width: 168, height: 58)
                         .padding(6)
                         .background(
@@ -213,10 +216,11 @@ struct OverviewView: View {
     }
 
     private var topApps: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        let groups = topAppGroups
+        return VStack(alignment: .leading, spacing: 10) {
             SectionEyebrow(title: "What's using your Mac")
             VStack(alignment: .leading, spacing: 0) {
-                ForEach(topAppGroups) { group in
+                ForEach(groups) { group in
                     TopAppRow(group: group)
                         .transition(.opacity)
                 }
@@ -225,10 +229,10 @@ struct OverviewView: View {
         }
         // Keyed to row membership, not the values: rows arriving or leaving the
         // top five animate, per-tick metric churn and reordering does not.
-        .animation(Motion.respecting(Motion.settle, reduceMotion: reduceMotion), value: Set(topAppGroups.map(\.id)))
+        .animation(Motion.respecting(Motion.settle, reduceMotion: reduceMotion), value: Set(groups.map(\.id)))
     }
 
-    private var recentHistory: some View {
+    private func recentHistory(trace: [HistoryPoint]) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             SectionEyebrow(title: "Last five minutes")
             HStack(spacing: 12) {
@@ -237,7 +241,7 @@ struct OverviewView: View {
                     entry: MetricGlossary.cpu,
                     note: "Spikes are normal; a flat high line is worth a look."
                 ) {
-                    CPUHistoryChart(points: recentFiveMinutes)
+                    CPUHistoryChart(points: trace)
                         .frame(height: 96)
                 }
                 PaperChartCard(
@@ -245,7 +249,7 @@ struct OverviewView: View {
                     entry: MetricGlossary.memoryPressure,
                     note: "How hard macOS is working to find room in memory."
                 ) {
-                    PressureHistoryChart(points: recentFiveMinutes)
+                    PressureHistoryChart(points: trace)
                         .frame(height: 96)
                 }
             }

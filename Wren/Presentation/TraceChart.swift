@@ -47,11 +47,15 @@ struct TraceCanvas: View {
 
         var leading: CGFloat = 0
         var bottom: CGFloat = 0
+        // Tick labels are laid out once per redraw: measurement and drawing
+        // share the resolved text instead of resolving each string twice.
+        var yLabels: [(value: Double, label: GraphicsContext.ResolvedText)] = []
         if showsAxes {
             let font = Typeface.label(9.5)
             let proposal = CGSize(width: 1000, height: 50)
-            let widest = ticks
-                .map { context.resolve(Text(yLabel($0)).font(font)).measure(in: proposal).width }
+            yLabels = ticks.map { ($0, context.resolve(Text(yLabel($0)).font(font))) }
+            let widest = yLabels
+                .map { $0.label.measure(in: proposal).width }
                 .max() ?? 0
             leading = min(widest + 8, size.width * 0.35)
             bottom = 16
@@ -76,7 +80,7 @@ struct TraceCanvas: View {
         }
 
         if showsAxes {
-            drawAxes(&context, plot: plot, ticks: ticks, domain: domain, xMin: xMin, xMax: xMax)
+            drawAxes(&context, plot: plot, yLabels: yLabels, domain: domain, xMin: xMin, xMax: xMax)
         }
 
         let path = tracePath(series.map(point))
@@ -119,20 +123,20 @@ struct TraceCanvas: View {
     private func drawAxes(
         _ context: inout GraphicsContext,
         plot: CGRect,
-        ticks: [Double],
+        yLabels: [(value: Double, label: GraphicsContext.ResolvedText)],
         domain: ClosedRange<Double>,
         xMin: TimeInterval,
         xMax: TimeInterval
     ) {
         let font = Typeface.label(9.5)
 
-        for tick in ticks {
-            let y = yPosition(for: tick, in: plot, domain: domain)
+        for entry in yLabels {
+            let y = yPosition(for: entry.value, in: plot, domain: domain)
             var grid = Path()
             grid.move(to: CGPoint(x: plot.minX, y: y))
             grid.addLine(to: CGPoint(x: plot.maxX, y: y))
             context.stroke(grid, with: .color(Palette.rule), style: StrokeStyle(lineWidth: 1))
-            drawLabel(&context, yLabel(tick), at: CGPoint(x: plot.minX - 6, y: y), anchor: .trailing, font: font)
+            drawResolved(&context, entry.label, at: CGPoint(x: plot.minX - 6, y: y), anchor: .trailing)
         }
 
         let times = (0..<4).map { xMin + (xMax - xMin) * Double($0) / 3 }
@@ -149,7 +153,7 @@ struct TraceCanvas: View {
                 : .dateTime.hour().minute()
             let label = Date(timeIntervalSinceReferenceDate: time).formatted(style)
             let anchor: UnitPoint = index == 0 ? .leading : (index == times.count - 1 ? .trailing : .center)
-            drawLabel(&context, label, at: CGPoint(x: x, y: plot.maxY + 5), anchor: anchor, font: font)
+            drawResolved(&context, context.resolve(Text(label).font(font)), at: CGPoint(x: x, y: plot.maxY + 5), anchor: anchor)
         }
     }
 
@@ -159,14 +163,13 @@ struct TraceCanvas: View {
         return plot.maxY - CGFloat(fraction) * plot.height
     }
 
-    private func drawLabel(
+    private func drawResolved(
         _ context: inout GraphicsContext,
-        _ text: String,
+        _ text: GraphicsContext.ResolvedText,
         at point: CGPoint,
-        anchor: UnitPoint,
-        font: Font
+        anchor: UnitPoint
     ) {
-        var resolved = context.resolve(Text(text).font(font))
+        var resolved = text
         resolved.shading = .color(Palette.inkSoft)
         context.draw(resolved, at: point, anchor: anchor)
     }
