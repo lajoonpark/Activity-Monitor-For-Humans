@@ -161,7 +161,6 @@ private struct AppRow: View, Equatable {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isHovering = false
-    @State private var isAppearing = true
 
     var body: some View {
         LedgerRow {
@@ -194,12 +193,6 @@ private struct AppRow: View, Equatable {
                 .disabled(ProcessActions.isProtected(group: group))
                 .help(ProcessActions.isProtected(group: group) ? "This app can't be quit from here." : "Quit \(group.name)")
                 .accessibilityHidden(!isHovering)
-        }
-        .opacity(isAppearing ? 0 : 1)
-        .onAppear {
-            withAnimation(Motion.respecting(Motion.arrive, reduceMotion: reduceMotion)) {
-                isAppearing = false
-            }
         }
         .onHover { hovering in
             withAnimation(Motion.reveal) { isHovering = hovering }

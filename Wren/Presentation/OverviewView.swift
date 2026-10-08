@@ -319,9 +319,6 @@ private struct ReasonRow: View {
 private struct TopAppRow: View {
     let group: ProcessGroupStats
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var isAppearing = true
-
     var body: some View {
         HStack(spacing: 10) {
             ProcessIconView(pid: group.pid ?? -1)
@@ -338,12 +335,6 @@ private struct TopAppRow: View {
                 .frame(width: 68, alignment: .trailing)
         }
         .padding(.vertical, 7)
-        .opacity(isAppearing ? 0 : 1)
-        .onAppear {
-            withAnimation(Motion.respecting(Motion.arrive, reduceMotion: reduceMotion)) {
-                isAppearing = false
-            }
-        }
     }
 }
 
