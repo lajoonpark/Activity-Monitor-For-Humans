@@ -220,7 +220,6 @@ struct ReadoutTile: View {
 /// A paper list: hairline rows that warm up under the pointer instead of
 /// taking a hard selection highlight.
 struct LedgerRow<Content: View>: View {
-    var isFirst: Bool = false
     @ViewBuilder var content: Content
 
     @State private var isHovering = false
@@ -229,17 +228,11 @@ struct LedgerRow<Content: View>: View {
         HStack(spacing: 12) {
             content
         }
-        .padding(.vertical, 8)
-        .padding(.horizontal, 12)
+        .padding(.init(top: 8, leading: 12, bottom: 8, trailing: 12))
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(isHovering ? Palette.ink.opacity(0.045) : Color.clear)
-        .overlay(alignment: .top) {
-            if isFirst {
-                Rectangle().fill(Palette.rule).frame(height: 1)
-            }
-        }
         .overlay(alignment: .bottom) {
-            Rectangle().fill(Palette.rule).frame(height: 1)
+            Palette.rule.frame(height: 1)
         }
         .onHover { hovering in
             withAnimation(Motion.reveal) { isHovering = hovering }

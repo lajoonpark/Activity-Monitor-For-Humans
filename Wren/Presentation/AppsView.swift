@@ -11,7 +11,9 @@ struct AppsView: View {
 
     enum SortKey { case name, cpu, memory }
 
-    private var sortedGroups: [ProcessGroupStats] {
+    /// Sorted only when a new batch arrives (see `recomputeRows`), never from
+    /// `body` — sorting per render made every layout pass re-sort the ledger.
+    private func sortedGroups() -> [ProcessGroupStats] {
         let groups = session.appGroups
         switch sortKey {
         case .name:
@@ -30,7 +32,7 @@ struct AppsView: View {
 
                 if session.state != .active {
                     waitingState
-                } else if sortedGroups.isEmpty {
+                } else if session.appGroups.isEmpty {
                     emptyState
                 } else {
                     Text("Every app is grouped together with the pieces it runs underneath, so the list reads the way you think about your Mac.")
@@ -98,6 +100,7 @@ struct AppsView: View {
                 AppRow(group: group) {
                     pendingGroup = group
                 }
+                .equatable()
             }
         }
         .paperCard(padding: 8)
@@ -108,7 +111,7 @@ struct AppsView: View {
     /// display refresh (see `Motion`). A row that has just arrived fades
     /// itself in via `AppRow`; one that leaves simply goes.
     private func recomputeRows() {
-        rows = sortedGroups
+        rows = sortedGroups()
     }
 
     private var waitingState: some View {
@@ -145,9 +148,16 @@ struct AppsView: View {
     }
 }
 
-private struct AppRow: View {
+private struct AppRow: View, Equatable {
     let group: ProcessGroupStats
     let onQuit: () -> Void
+
+    /// Identity is the group alone. `onQuit` is a closure, so without this
+    /// SwiftUI sees every row as new on every sample and re-lays-out the whole
+    /// ledger even when only a few rows actually moved.
+    static func == (lhs: AppRow, rhs: AppRow) -> Bool {
+        lhs.group == rhs.group
+    }
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isHovering = false
@@ -174,8 +184,7 @@ private struct AppRow: View {
                 .buttonStyle(.plain)
                 .font(Typeface.label(11))
                 .foregroundStyle(Palette.health(.potentialProblem))
-                .padding(.horizontal, 8)
-                .padding(.vertical, 3)
+                .padding(.init(top: 3, leading: 8, bottom: 3, trailing: 8))
                 .background(
                     RoundedRectangle(cornerRadius: 6, style: .continuous)
                         .fill(Palette.health(.potentialProblem).opacity(isHovering ? 0.14 : 0))
