@@ -8,7 +8,8 @@ struct OverviewView: View {
     var body: some View {
         // One slice and one decimation per update feeds the readout trace and
         // both history charts — each consumer re-deriving them was per-tick churn.
-        let trace = recentFiveMinutes.decimatedForDrawing()
+        // The engine ships the five-minute slice ready-made with the batch.
+        let trace = session.recentPoints.decimatedForDrawing()
         return ScrollView {
             VStack(alignment: .leading, spacing: 22) {
                 switch session.state {
@@ -259,11 +260,6 @@ struct OverviewView: View {
 
     private var topAppGroups: [ProcessGroupStats] {
         session.appGroups.sorted { $0.cpuPercent > $1.cpuPercent }.prefix(5).map { $0 }
-    }
-
-    private var recentFiveMinutes: [HistoryPoint] {
-        let cutoff = Date().addingTimeInterval(-300)
-        return session.historyPoints.filter { $0.timestamp >= cutoff }
     }
 
     private var cpuMemoryLine: String {

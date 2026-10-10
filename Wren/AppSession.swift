@@ -5,6 +5,12 @@ struct MetricsBatch: Sendable {
     let snapshot: SystemSnapshot
     let processes: [ProcessSnapshot]
     let interpreted: InterpretedHealth
+    /// Windowed history for the selected `HistoryWindow`.
+    let historyPoints: [HistoryPoint]
+    /// The five-minute slice, which the overview traces always show regardless
+    /// of the selected window. Already computed to interpret the sample, so it
+    /// ships alongside instead of being re-derived on the main thread.
+    let recentPoints: [HistoryPoint]
 }
 
 @MainActor
@@ -16,6 +22,7 @@ final class AppSession {
     var appGroups: [ProcessGroupStats] = []
     var interpreted: InterpretedHealth?
     var historyPoints: [HistoryPoint] = []
+    var recentPoints: [HistoryPoint] = []
     var selectedWindow: HistoryWindow = .thirtyMinutes
     private(set) var isPaused = false
 
@@ -79,12 +86,14 @@ final class AppSession {
 
     func selectWindow(_ window: HistoryWindow) {
         selectedWindow = window
+        engine.setHistoryWindow(window)
         if state == .active {
             historyPoints = engine.history(for: window)
         }
     }
 
     private func runEngine() {
+        engine.setHistoryWindow(selectedWindow)
         engine.start(interval: preferences.sampleInterval) { [weak self] batch in
             Task { @MainActor [weak self] in
                 self?.publish(batch)
@@ -98,7 +107,8 @@ final class AppSession {
         processes = ProcessMetricsCollector.applyingAppMetadata(to: batch.processes)
         appGroups = ProcessGrouping.buildGroups(from: processes)
         interpreted = batch.interpreted
-        historyPoints = engine.history(for: selectedWindow)
+        historyPoints = batch.historyPoints
+        recentPoints = batch.recentPoints
         state = .active
     }
 }
@@ -108,6 +118,7 @@ private final class MetricsEngine: @unchecked Sendable {
     private let queue = DispatchQueue(label: "metrics.collection", qos: .utility)
     private var timer: DispatchSourceTimer?
     private var interval: TimeInterval = 2
+    private var historyWindow: HistoryWindow = .thirtyMinutes
 
     private let systemCollector = SystemMetricsCollector()
     private let ioCollector = IOMetricsCollector()
@@ -133,6 +144,10 @@ private final class MetricsEngine: @unchecked Sendable {
         if timer != nil {
             scheduleTimer(interval: interval)
         }
+    }
+
+    func setHistoryWindow(_ window: HistoryWindow) {
+        historyWindow = window
     }
 
     func stop() {
@@ -199,10 +214,19 @@ private final class MetricsEngine: @unchecked Sendable {
         store.append(point)
 
         let fiveMinuteHistory = store.points(for: .fiveMinutes)
+        let windowHistory = historyWindow == .fiveMinutes
+            ? fiveMinuteHistory
+            : store.points(for: historyWindow)
         let interpreted = interpreter.interpret(current: snapshot, processes: processes, history: fiveMinuteHistory)
 
         guard let onBatch else { return }
-        onBatch(MetricsBatch(snapshot: snapshot, processes: processes, interpreted: interpreted))
+        onBatch(MetricsBatch(
+            snapshot: snapshot,
+            processes: processes,
+            interpreted: interpreted,
+            historyPoints: windowHistory,
+            recentPoints: fiveMinuteHistory
+        ))
     }
 
     /// Keep the top 25 by CPU and top 25 by memory, merged, for presentation.

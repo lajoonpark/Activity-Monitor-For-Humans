@@ -17,3 +17,4 @@ xcuserdata/
 # IDE / agent tool config
 .idea/
 .kilo/
+.qoder/

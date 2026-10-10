@@ -139,15 +139,21 @@ final class ProcessMetricsCollector: @unchecked Sendable {
 
     /// Cheap pass: one `proc_pidinfo` per PID, no path or rusage lookups.
     private static func collectCheapSamples() -> [RawSample] {
-        let bufferSize = proc_listpids(UInt32(PROC_ALL_PIDS), 0, nil, 0)
-        guard bufferSize > 0 else { return [] }
-        var buffer = [Int32](repeating: 0, count: Int(bufferSize))
-        let count = proc_listpids(UInt32(PROC_ALL_PIDS), 0, &buffer, bufferSize)
-        guard count > 0 else { return [] }
+        // `proc_listpids` takes and returns byte counts, not element counts.
+        let byteCapacity = proc_listpids(UInt32(PROC_ALL_PIDS), 0, nil, 0)
+        guard byteCapacity > 0 else { return [] }
+        var buffer = [Int32](repeating: 0, count: Int(byteCapacity) / MemoryLayout<Int32>.size)
+        guard !buffer.isEmpty else { return [] }
+
+        let byteCount = proc_listpids(
+            UInt32(PROC_ALL_PIDS), 0, &buffer, Int32(buffer.count * MemoryLayout<Int32>.size)
+        )
+        guard byteCount > 0 else { return [] }
+        let count = min(Int(byteCount) / MemoryLayout<Int32>.size, buffer.count)
 
         var samples: [RawSample] = []
-        samples.reserveCapacity(Int(count))
-        for i in 0..<Int(count) {
+        samples.reserveCapacity(count)
+        for i in 0..<count {
             let pid = buffer[i]
             guard pid > 0 else { continue }
             guard let info = taskAllInfo(for: pid) else { continue }
@@ -180,15 +186,37 @@ final class ProcessMetricsCollector: @unchecked Sendable {
                 ) ?? 0
                 byCPU.append((raw.pid, percent))
             }
-            for entry in byCPU.sorted(by: { $0.percent > $1.percent }).prefix(cpuPoolSize) {
+            for entry in topK(byCPU, cpuPoolSize, by: { $0.percent > $1.percent }) {
                 selected.insert(entry.pid)
             }
         }
 
-        for raw in cheap.sorted(by: { $0.residentBytes > $1.residentBytes }).prefix(memoryPoolSize) {
+        for raw in topK(cheap, memoryPoolSize, by: { $0.residentBytes > $1.residentBytes }) {
             selected.insert(raw.pid)
         }
         return selected
+    }
+
+    /// The `k` highest-ranked elements without sorting the whole input.
+    ///
+    /// `sorted(by:).prefix(k)` ranks every element and copies the result, twice
+    /// per tick across every PID on the machine. `best` holds at most `k`
+    /// survivors ranked best-first, so the common case is a single comparison
+    /// that rejects the candidate outright.
+    ///
+    /// Internal rather than private so the selection contract stays pinned down
+    /// by `TopKSelectionTests`.
+    static func topK<T>(_ input: [T], _ k: Int, by isBetter: (T, T) -> Bool) -> [T] {
+        guard k > 0 else { return [] }
+        var best: [T] = []
+        best.reserveCapacity(min(k, input.count))
+        for element in input {
+            if best.count == k, !isBetter(element, best[k - 1]) { continue }
+            let position = best.firstIndex(where: { isBetter(element, $0) }) ?? best.count
+            best.insert(element, at: position)
+            if best.count > k { best.removeLast() }
+        }
+        return best
     }
 
     private static func collectDetails(for pids: Set<Int32>) -> [Int32: DetailSample] {
