@@ -5,6 +5,9 @@ struct MenuBarLabel: View {
     var session: AppSession
     var preferences: AppPreferences
 
+    /// Draws from the session's slow-changing menu bar surface only. Reading
+    /// `current`/`interpreted` here would re-render — and make AppKit
+    /// re-measure, redraw and re-snapshot — the status item on every sample.
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: "waveform.path.ecg")
@@ -19,13 +22,13 @@ struct MenuBarLabel: View {
     }
 
     private var metricsLine: String {
-        guard let snapshot = session.current else { return "" }
+        guard let snapshot = session.menuBarSnapshot else { return "" }
         let used = snapshot.memory.usedBytes
         return "\(Formatters.percent(snapshot.cpu.totalUsedPercent)) \(Formatters.bytes(used))"
     }
 
     private var levelColor: Color {
-        if let level = session.interpreted?.level {
+        if let level = session.menuBarLevel {
             return Palette.health(level)
         }
         return .secondary

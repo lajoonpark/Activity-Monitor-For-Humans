@@ -26,6 +26,19 @@ final class AppSession {
     var selectedWindow: HistoryWindow = .thirtyMinutes
     private(set) var isPaused = false
 
+    /// Slow-changing surface for the menu bar label. The label draws only from
+    /// these, never from `current`/`interpreted`: every change to a status
+    /// item's content makes AppKit re-measure it (`_adjustLength`), re-render
+    /// it and re-snapshot it into a bitmap, so a metrics string that moved on
+    /// every sample made the menu bar redraw on every sample. The health tint
+    /// stays live because a level change is rare and worth showing at once.
+    private(set) var menuBarLevel: HealthLevel?
+    private(set) var menuBarSnapshot: SystemSnapshot?
+    private var lastMenuBarRefresh = Date.distantPast
+
+    /// How often the menu bar numbers move: glanceable, not live.
+    static let menuBarRefresh: TimeInterval = 15
+
     let preferences: AppPreferences
 
     private let engine = MetricsEngine()
@@ -109,7 +122,19 @@ final class AppSession {
         interpreted = batch.interpreted
         historyPoints = batch.historyPoints
         recentPoints = batch.recentPoints
+        updateMenuBar(with: batch)
         state = .active
+    }
+
+    private func updateMenuBar(with batch: MetricsBatch) {
+        let level = batch.interpreted.level
+        if level != menuBarLevel {
+            menuBarLevel = level
+        }
+        let now = batch.snapshot.timestamp
+        guard now.timeIntervalSince(lastMenuBarRefresh) >= Self.menuBarRefresh else { return }
+        lastMenuBarRefresh = now
+        menuBarSnapshot = batch.snapshot
     }
 }
 

@@ -120,7 +120,7 @@ final class ProcessMetricsCollector: @unchecked Sendable {
     @MainActor
     static func applyingAppMetadata(to processes: [ProcessSnapshot]) -> [ProcessSnapshot] {
         let cache = RunningAppCache.shared
-        cache.retainOnly(Set(processes.map(\.id)))
+        cache.prune()
         return processes.map { process in
             let app = cache.entry(for: process.id)
             return ProcessSnapshot(

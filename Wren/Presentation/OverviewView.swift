@@ -375,7 +375,7 @@ struct ProcessIconView: View {
 
     var body: some View {
         Group {
-            if let icon = RunningAppCache.shared.entry(for: pid)?.icon {
+            if let icon = RunningAppCache.shared.icon(for: pid) {
                 Image(nsImage: icon)
                     .resizable()
             } else {
