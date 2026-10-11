@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wren — a calm activity monitor for macOS</title>
+  <meta name="description" content="Wren is a lightweight, native macOS activity monitor that explains what your Mac is doing in plain language. ~0.1% CPU and ~1 MB of memory at rest." />
+  <meta property="og:title" content="Wren — a calm activity monitor for macOS" />
+  <meta property="og:description" content="Your Mac, explained in plain language. Lightweight, native, and honest." />
+  <meta property="og:image" content="assets/app-icon.png" />
+  <link rel="icon" type="image/png" href="assets/app-icon.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            paper: { DEFAULT: '#f6f1e7', deep: '#efe7d7', panel: '#fffdf7', line: '#e4dac5' },
+            ink: { DEFAULT: '#2b241a', soft: '#6f6350', faint: '#9a8d76' },
+            wren: { DEFAULT: '#1f7fb8', bright: '#29a3d8', deep: '#2f5fd0' },
+            leaf: '#3e9b4f',
+            amber: '#d29a2b',
+            rust: '#c4503c'
+          },
+          fontFamily: {
+            display: ['Fraunces', 'ui-serif', 'Georgia', 'serif'],
+            body: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+            mono: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
+          },
+          maxWidth: { shell: '72rem' }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body class="bg-paper text-ink font-body antialiased overflow-x-hidden">
+  <div class="grain" aria-hidden="true"></div>
+  <div id="scroll-progress" aria-hidden="true"></div>
+
+  <!-- ============ NAV ============ -->
+  <header id="site-nav" class="fixed top-0 inset-x-0 z-50">
+    <div class="mx-auto max-w-shell px-6">
+      <div class="flex items-center justify-between h-16">
+        <a href="#top" class="flex items-center gap-2.5 group">
+          <img src="assets/app-icon.png" alt="Wren app icon" class="w-8 h-8 rounded-[9px] shadow-sm transition-transform duration-500 group-hover:-rotate-6" />
+          <span class="font-display text-xl font-medium tracking-tight">Wren</span>
+        </a>
+        <nav class="hidden md:flex items-center gap-8 text-sm text-ink-soft">
+          <a href="#menubar" class="nav-link">Menu bar</a>
+          <a href="#lightweight" class="nav-link">Featherweight</a>
+          <a href="#features" class="nav-link">Features</a>
+          <a href="#language" class="nav-link">Plain language</a>
+          <a href="#answers" class="nav-link">Answers</a>
+        </nav>
+        <a href="#download" class="btn-primary btn-sm">Download</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- ============ HERO ============ -->
+    <section id="hero" class="relative pt-36 pb-24 md:pt-44 md:pb-32">
+      <div class="blob blob-teal" aria-hidden="true"></div>
+      <div class="blob blob-amber" aria-hidden="true"></div>
+
+      <div class="mx-auto max-w-shell px-6 relative">
+        <div class="grid lg:grid-cols-12 gap-14 lg:gap-10 items-center">
+          <div class="lg:col-span-6">
+            <p class="eyebrow reveal">Wren 2.5 · Free &amp; open source · macOS 14+</p>
+            <h1 class="font-display font-medium text-5xl md:text-6xl xl:text-[4.4rem] leading-[1.04] tracking-tight mt-5 reveal" style="--d:90ms">
+              Your Mac,<br />explained in <em class="text-wren not-italic border-b-[3px] border-wren/30">plain language</em>.
+            </h1>
+            <p class="text-lg text-ink-soft leading-relaxed mt-6 max-w-xl reveal" style="--d:180ms">
+              Wren is a calm activity monitor that lives in your menu bar. It watches quietly,
+              and when something matters it tells you honestly — no gauges screaming for
+              attention, no scary numbers without context.
+            </p>
+            <div class="flex flex-wrap items-center gap-4 mt-9 reveal" style="--d:270ms">
+              <a href="#download" class="btn-primary">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download for macOS
+              </a>
+              <a href="https://github.com/lajoonpark/Wren" class="btn-ghost" target="_blank" rel="noopener">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.15c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.05.78 2.13v3.16c0 .31.21.67.8.55A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+                View on GitHub
+              </a>
+            </div>
+            <dl class="flex flex-wrap gap-x-8 gap-y-3 mt-10 text-sm reveal" style="--d:360ms">
+              <div class="flex items-baseline gap-2">
+                <dt class="text-ink-faint">At rest</dt>
+                <dd class="font-mono font-medium text-wren">~0.1% CPU · ~1 MB</dd>
+              </div>
+              <div class="flex items-baseline gap-2">
+                <dt class="text-ink-faint">Dependencies</dt>
+                <dd class="font-mono font-medium">zero</dd>
+              </div>
+              <div class="flex items-baseline gap-2">
+                <dt class="text-ink-faint">Built with</dt>
+                <dd class="font-mono font-medium">Swift &amp; SwiftUI</dd>
+              </div>
+            </dl>
+          </div>
+
+          <!-- App window mockup -->
+          <div class="lg:col-span-6 reveal" style="--d:200ms">
+            <div id="hero-tilt" class="tilt-wrap">
+              <div id="hero-window" class="mock-window">
+                <div class="mock-titlebar">
+                  <span class="tl tl-r"></span><span class="tl tl-y"></span><span class="tl tl-g"></span>
+                  <span class="mock-title">Wren — Overview</span>
+                  <span class="mock-live"><span class="live-dot"></span>Live</span>
+                </div>
+                <div class="mock-body">
+                  <div class="health-row">
+                    <span class="health-dot" aria-hidden="true"></span>
+                    <div class="min-w-0">
+                      <p class="health-title">Your Mac is running normally</p>
+                      <p class="health-sub">CPU, memory, disk, and network all look settled.</p>
+                    </div>
+                    <span class="health-chip">Normal</span>
+                  </div>
+
+                  <div class="mock-charts">
+                    <div class="chart-card">
+                      <div class="chart-head">
+                        <span>CPU</span>
+                        <span class="font-mono text-ink"><span class="live-num" data-base="11" data-jitter="7" data-min="4" data-max="24">11</span>%</span>
+                      </div>
+                      <svg class="drift-chart" data-color="#1f7fb8" data-min="4" data-max="24" viewBox="0 0 260 80" preserveAspectRatio="none" aria-hidden="true">
+                        <path class="chart-area" fill="rgba(31,127,184,0.10)"></path>
+                        <path class="chart-line" fill="none" stroke="#1f7fb8" stroke-width="2" stroke-linecap="round"></path>
+                      </svg>
+                    </div>
+                    <div class="chart-card">
+                      <div class="chart-head">
+                        <span>Memory pressure</span>
+                        <span class="font-mono text-leaf">Low</span>
+                      </div>
+                      <svg class="drift-chart" data-color="#3e9b4f" data-min="8" data-max="30" viewBox="0 0 260 80" preserveAspectRatio="none" aria-hidden="true">
+                        <path class="chart-area" fill="rgba(62,155,79,0.12)"></path>
+                        <path class="chart-line" fill="none" stroke="#3e9b4f" stroke-width="2" stroke-linecap="round"></path>
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div class="mock-apps">
+                    <p class="mock-section-label">Top apps by CPU</p>
+                    <div class="app-row">
+                      <span class="app-dot" style="--c:#8b5cf6"></span>
+                      <span class="app-name">Xcode</span>
+                      <span class="app-bar"><i class="live-bar" data-base="30" data-jitter="14" data-min="8" data-max="62" style="width:30%"></i></span>
+                      <span class="app-cpu font-mono"><span class="live-num" data-base="8.2" data-jitter="3.5" data-min="2" data-max="16" data-decimals="1">8.2</span>%</span>
+                    </div>
+                    <div class="app-row">
+                      <span class="app-dot" style="--c:#0ea5e9"></span>
+                      <span class="app-name">Safari</span>
+                      <span class="app-bar"><i class="live-bar" data-base="18" data-jitter="10" data-min="4" data-max="40" style="width:18%"></i></span>
+                      <span class="app-cpu font-mono"><span class="live-num" data-base="5.1" data-jitter="2.4" data-min="1" data-max="11" data-decimals="1">5.1</span>%</span>
+                    </div>
+                    <div class="app-row">
+                      <span class="app-dot" style="--c:#f59e0b"></span>
+                      <span class="app-name">Music</span>
+                      <span class="app-bar"><i class="live-bar" data-base="7" data-jitter="4" data-min="2" data-max="16" style="width:7%"></i></span>
+                      <span class="app-cpu font-mono"><span class="live-num" data-base="1.8" data-jitter="1" data-min="0.4" data-max="4" data-decimals="1">1.8</span>%</span>
+                    </div>
+                  </div>
+
+                  <div class="mock-foot font-mono">
+                    <span>Disk <b><span class="live-num" data-base="14" data-jitter="10" data-min="0" data-max="48">14</span> MB/s</b></span>
+                    <span>Net ↓ <b><span class="live-num" data-base="3.2" data-jitter="2.6" data-min="0" data-max="9" data-decimals="1">3.2</span> MB/s</b></span>
+                    <span>Battery <b><span class="live-num" data-base="87" data-jitter="0" data-min="87" data-max="87">87</span>%</b></span>
+                    <span class="mock-sample">Sampling every 2 s</span>
+                  </div>
+                </div>
+              </div>
+              <div class="window-shadow" aria-hidden="true"></div>
+            </div>
+          </div>
+        </div>
+
+        <a href="#menubar" class="scroll-hint reveal" style="--d:520ms" aria-label="Scroll to see more">
+          <span class="scroll-hint-line"></span>
+          <span class="text-xs tracking-widest uppercase text-ink-faint">Scroll</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ============ MENU BAR DEMO ============ -->
+    <section id="menubar" class="py-24 md:py-32 scroll-mt-20">
+      <div class="mx-auto max-w-shell px-6">
+        <div class="text-center max-w-2xl mx-auto">
+          <p class="eyebrow justify-center reveal">Menu bar extra</p>
+          <h2 class="font-display font-medium text-4xl md:text-5xl tracking-tight mt-4 reveal" style="--d:90ms">
+            Lives quietly up top.<br />Costs almost nothing.
+          </h2>
+          <p class="text-ink-soft text-lg leading-relaxed mt-5 reveal" style="--d:180ms">
+            Close the window and Wren all but disappears — an optional menu bar reading that
+            costs about as much as the clock next to it. Click the icon below; that pop-up is the whole idea.
+          </p>
+        </div>
+
+        <div class="mt-14 flex justify-center reveal" style="--d:260ms">
+          <div class="menubar-demo">
+            <div class="fake-menubar">
+              <span class="fm-left">Finder&nbsp;&nbsp;File&nbsp;&nbsp;Edit&nbsp;&nbsp;View&nbsp;&nbsp;Go&nbsp;&nbsp;Window&nbsp;&nbsp;Help</span>
+              <span class="fm-right">
+                <button id="menubar-toggle" class="fm-wren" aria-expanded="false" aria-label="Toggle Wren menu bar pop-up">
+                  <svg class="w-[18px] h-[18px]" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 34h12l6-16 10 32 8-24 5 8h15"/></svg>
+                  <span class="fm-metric font-mono">12%</span>
+                </button>
+                <span class="fm-item hidden sm:inline">Wed 11 Oct</span>
+                <span class="fm-item font-mono" id="menubar-clock">10:24</span>
+              </span>
+            </div>
+            <div id="menubar-popup" class="menubar-popup" role="dialog" aria-label="Wren menu bar pop-up">
+              <div class="mp-head">
+                <span class="health-dot health-dot-sm"></span>
+                <span class="font-medium text-sm">Running normally</span>
+                <span class="mp-chip font-mono">12% CPU</span>
+              </div>
+              <svg class="drift-chart mp-chart" data-color="#29a3d8" data-min="4" data-max="26" viewBox="0 0 260 60" preserveAspectRatio="none" aria-hidden="true">
+                <path class="chart-area" fill="rgba(41,163,216,0.10)"></path>
+                <path class="chart-line" fill="none" stroke="#29a3d8" stroke-width="2" stroke-linecap="round"></path>
+              </svg>
+              <div class="mp-rows font-mono">
+                <div><span>In use</span><b>8.2 / 16 GB</b></div>
+                <div><span>Pressure</span><b class="text-leaf">Low</b></div>
+                <div><span>Swap</span><b>1.8 GB · stable</b></div>
+              </div>
+              <div class="mp-foot">
+                Wren itself: <b class="font-mono">0.1% CPU · ~1 MB</b>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FEATHERWEIGHT ============ -->
+    <section id="lightweight" class="py-24 md:py-32 bg-paper-deep/60 border-y border-paper-line scroll-mt-20">
+      <div class="mx-auto max-w-shell px-6">
+        <div class="max-w-2xl">
+          <p class="eyebrow reveal">Featherweight by design</p>
+          <h2 class="font-display font-medium text-4xl md:text-5xl tracking-tight mt-4 reveal" style="--d:90ms">
+            The monitor that doesn't need monitoring.
+          </h2>
+          <p class="text-ink-soft text-lg leading-relaxed mt-5 reveal" style="--d:180ms">
+            A system monitor has no business being the heaviest thing it reports on.
+            Wren samples on a background queue, keeps AppKit off the hot path, and stays
+            light enough that you'd never find it in its own list.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 mt-14">
+          <div class="stat-card reveal">
+            <p class="stat-num font-mono"><span data-count-to="0.1" data-decimals="1" data-prefix="~">0</span><span class="stat-unit">%</span></p>
+            <p class="stat-label">CPU — menu bar only</p>
+          </div>
+          <div class="stat-card reveal" style="--d:90ms">
+            <p class="stat-num font-mono"><span data-count-to="1" data-prefix="~">0</span><span class="stat-unit">MB</span></p>
+            <p class="stat-label">Memory — menu bar only</p>
+          </div>
+          <div class="stat-card reveal" style="--d:180ms">
+            <p class="stat-num font-mono"><span data-count-to="5" data-prefix="~">0</span><span class="stat-unit">%</span></p>
+            <p class="stat-label">CPU — window open</p>
+          </div>
+          <div class="stat-card reveal" style="--d:270ms">
+            <p class="stat-num font-mono"><span data-count-to="50" data-prefix="~">0</span><span class="stat-unit">MB</span></p>
+            <p class="stat-label">Memory — window open</p>
+          </div>
+        </div>
+
+        <div class="mt-10 flex flex-wrap gap-x-8 gap-y-3 text-sm text-ink-soft reveal" style="--d:320ms">
+          <span class="flex items-center gap-2"><i class="tick"></i>No Electron, no browser wrapper</span>
+          <span class="flex items-center gap-2"><i class="tick"></i>Zero third-party dependencies</span>
+          <span class="flex items-center gap-2"><i class="tick"></i>100% native Swift &amp; SwiftUI</span>
+          <span class="flex items-center gap-2"><i class="tick"></i>Respects Reduce Motion</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FEATURES ============ -->
+    <section id="features" class="py-24 md:py-32 scroll-mt-20">
+      <div class="mx-auto max-w-shell px-6">
+        <div class="max-w-2xl">
+          <p class="eyebrow reveal">Everything it does</p>
+          <h2 class="font-display font-medium text-4xl md:text-5xl tracking-tight mt-4 reveal" style="--d:90ms">
+            Seven quiet rooms, one small house.
+          </h2>
+          <p class="text-ink-soft text-lg leading-relaxed mt-5 reveal" style="--d:180ms">
+            Every tab answers a real question. Nothing decorative earns a place unless it helps.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-5 mt-14">
+          <!-- Overview (large) -->
+          <article class="feature-card md:col-span-2 reveal">
+            <div class="fc-head">
+              <span class="fc-icon fc-icon-teal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2.5-6 4 12 2.5-6H21"/></svg>
+              </span>
+              <div>
+                <h3 class="fc-title">Overview</h3>
+                <p class="fc-sub">One glance, one honest answer.</p>
+              </div>
+            </div>
+            <p class="fc-copy">
+              A green, amber, or red state for the whole machine — weighed from CPU, memory
+              pressure, swap, disk, and network, then said in a sentence. Top apps, disk and
+              network rates, battery, and two short charts that drift rather than twitch.
+            </p>
+            <div class="fc-visual">
+              <div class="flex items-center gap-2 text-sm mb-3">
+                <span class="health-dot health-dot-sm"></span>
+                <span class="font-medium">Running normally</span>
+                <span class="text-ink-faint text-xs ml-auto font-mono">updated just now</span>
+              </div>
+              <svg class="drift-chart w-full" data-color="#1f7fb8" data-min="6" data-max="30" viewBox="0 0 520 90" preserveAspectRatio="none" aria-hidden="true">
+                <path class="chart-area" fill="rgba(31,127,184,0.08)"></path>
+                <path class="chart-line" fill="none" stroke="#1f7fb8" stroke-width="2" stroke-linecap="round"></path>
+              </svg>
+            </div>
+          </article>
+
+          <!-- Apps -->
+          <article class="feature-card reveal" style="--d:90ms">
+            <div class="fc-head">
+              <span class="fc-icon fc-icon-violet">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/></svg>
+              </span>
+              <div>
+                <h3 class="fc-title">Apps</h3>
+                <p class="fc-sub">What's actually costing you.</p>
+              </div>
+            </div>
+            <p class="fc-copy">
+              Processes grouped into the apps they belong to, sortable by CPU or memory,
+              with a guarded Quit for the heavy ones.
+            </p>
+            <div class="fc-visual fc-apps" data-shuffle>
+              <div class="fc-app-row">
+                <span class="app-name">Xcode</span>
+                <span class="app-bar"><i style="width:56%"></i></span>
+                <b class="font-mono">38%</b>
+                <span class="quit-chip">Guarded Quit</span>
+              </div>
+              <div class="fc-app-row">
+                <span class="app-name">Safari</span>
+                <span class="app-bar"><i style="width:22%"></i></span>
+                <b class="font-mono">9%</b>
+              </div>
+              <div class="fc-app-row">
+                <span class="app-name">Slack</span>
+                <span class="app-bar"><i style="width:10%"></i></span>
+                <b class="font-mono">4%</b>
+              </div>
+            </div>
+          </article>
+
+          <!-- Energy -->
+          <article class="feature-card reveal">
+            <div class="fc-head">
+              <span class="fc-icon fc-icon-amber">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L9.5 22 19 10h-6.5L13 2z"/></svg>
+              </span>
+              <div>
+                <h3 class="fc-title">Energy</h3>
+                <p class="fc-sub">Watts, per app.</p>
+              </div>
+            </div>
+            <p class="fc-copy">
+              Estimated energy use per app where macOS reports it — and an honest footnote
+              on hardware that doesn't.
+            </p>
+            <div class="fc-visual space-y-3" data-watts>
+              <div class="fc-watt-row"><span class="app-name">Xcode</span><b class="font-mono"><span class="live-num" data-base="14.2" data-jitter="3" data-min="8" data-max="21" data-decimals="1">14.2</span> W</b></div>
+              <div class="fc-watt-row"><span class="app-name">Safari</span><b class="font-mono"><span class="live-num" data-base="6.8" data-jitter="2" data-min="3" data-max="11" data-decimals="1">6.8</span> W</b></div>
+              <div class="fc-watt-row"><span class="app-name">Spotify</span><b class="font-mono"><span class="live-num" data-base="2.1" data-jitter="0.8" data-min="1" data-max="4" data-decimals="1">2.1</span> W</b></div>
+              <p class="text-xs text-ink-faint pt-1">Degrades gracefully to "—" where macOS has no energy data.</p>
+            </div>
+          </article>
+
+          <!-- History -->
+          <article class="feature-card md:col-span-2 reveal" style="--d:90ms">
+            <div class="fc-head">
+              <span class="fc-icon fc-icon-blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+              </span>
+              <div>
+                <h3 class="fc-title">History</h3>
+                <p class="fc-sub">Because "it was fine a minute ago" isn't an answer.</p>
+              </div>
+            </div>
+            <p class="fc-copy">
+              CPU, memory pressure, swap, disk, and network over 5-minute, 30-minute, or
+              2-hour windows — long enough to catch the thing that only happens sometimes.
+            </p>
+            <div class="fc-visual">
+              <div class="hist-tabs" role="tablist" aria-label="History window">
+                <button class="hist-tab is-active" data-hist="0" role="tab" aria-selected="true">5 min</button>
+                <button class="hist-tab" data-hist="1" role="tab" aria-selected="false">30 min</button>
+                <button class="hist-tab" data-hist="2" role="tab" aria-selected="false">2 hr</button>
+              </div>
+              <svg class="hist-chart w-full" viewBox="0 0 520 110" preserveAspectRatio="none" aria-hidden="true">
+                <path class="hist-path is-active" fill="none" stroke="#1f7fb8" stroke-width="2" stroke-linecap="round"
+                  d="M0,72 C22,70 34,52 52,54 C70,56 80,78 98,76 C116,74 126,40 144,42 C162,44 172,64 190,62 C208,60 218,34 236,36 C254,38 264,58 282,56 C300,54 310,30 328,32 C346,34 356,52 374,50 C392,48 404,40 424,42 C444,44 460,36 480,34 C495,32 508,30 520,28" />
+                <path class="hist-path" fill="none" stroke="#1f7fb8" stroke-width="2" stroke-linecap="round"
+                  d="M0,84 C30,82 50,80 76,78 C100,76 118,74 140,66 C160,59 172,28 196,24 C220,20 236,58 258,62 C280,66 296,60 318,58 C340,56 356,44 378,42 C400,40 420,52 442,54 C466,56 492,48 520,46" />
+                <path class="hist-path" fill="none" stroke="#1f7fb8" stroke-width="2" stroke-linecap="round"
+                  d="M0,60 C40,58 70,62 110,60 C150,58 180,44 220,42 C260,40 300,48 340,50 C380,52 410,66 450,64 C480,62 500,56 520,54" />
+              </svg>
+            </div>
+          </article>
+
+          <!-- Wiki -->
+          <article class="feature-card reveal">
+            <div class="fc-head">
+              <span class="fc-icon fc-icon-green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+              </span>
+              <div>
+                <h3 class="fc-title">Wiki</h3>
+                <p class="fc-sub">"What is this?" — answered.</p>
+              </div>
+            </div>
+            <p class="fc-copy">
+              A searchable field guide to the processes people actually ask about,
+              one tap away from any row.
+            </p>
+            <div class="fc-visual">
+              <div class="wiki-search">
+                <svg class="w-3.5 h-3.5 text-ink-faint shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                <span id="wiki-typed" class="font-mono">kernel_task</span><span class="wiki-caret" aria-hidden="true"></span>
+              </div>
+              <div id="wiki-result" class="wiki-result">
+                <b>kernel_task</b> — the kernel's own process. It often uses CPU on purpose
+                to manage heat by throttling the machine. Usually normal, always on your side.
+              </div>
+            </div>
+          </article>
+
+          <!-- Advanced -->
+          <article class="feature-card reveal" style="--d:90ms">
+            <div class="fc-head">
+              <span class="fc-icon fc-icon-ink">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m8 9-4 3 4 3M16 9l4 3-4 3M13 5l-2 14"/></svg>
+              </span>
+              <div>
+                <h3 class="fc-title">Advanced</h3>
+                <p class="fc-sub">Raw values, no translation.</p>
+              </div>
+            </div>
+            <p class="fc-copy">
+              For technical users who want the numbers straight — the same readings,
+              before the plain-language layer touches them.
+            </p>
+            <div class="fc-visual font-mono text-[13px] space-y-2" data-advanced>
+              <div class="adv-row"><span>swap_used</span><b>1.80 GB</b></div>
+              <div class="adv-row"><span>compressed</span><b><span class="live-num" data-base="2.31" data-jitter="0.2" data-min="2" data-max="2.7" data-decimals="2">2.31</span> GB</b></div>
+              <div class="adv-row"><span>page_ins</span><b><span class="live-num" data-base="41203" data-jitter="900" data-min="40000" data-max="44000" data-decimals="0" data-group="1">41,203</span></b></div>
+              <div class="adv-row"><span>pageouts</span><b>0</b></div>
+            </div>
+          </article>
+
+          <!-- Settings -->
+          <article class="feature-card reveal" style="--d:180ms">
+            <div class="fc-head">
+              <span class="fc-icon fc-icon-slate">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.01a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55h.01a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.01a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg>
+              </span>
+              <div>
+                <h3 class="fc-title">Settings</h3>
+                <p class="fc-sub">Tune it once, forget it.</p>
+              </div>
+            </div>
+            <p class="fc-copy">
+              Sample interval, history retention, menu bar icon and metrics,
+              start at login. Sensible defaults throughout.
+            </p>
+            <div class="fc-visual space-y-4">
+              <div>
+                <p class="text-xs text-ink-faint mb-2">Sample interval</p>
+                <div class="seg" data-seg>
+                  <span class="seg-thumb"></span>
+                  <button class="seg-btn">1 s</button>
+                  <button class="seg-btn is-active">2 s</button>
+                  <button class="seg-btn">5 s</button>
+                </div>
+              </div>
+              <div class="space-y-2.5">
+                <label class="switch-row"><span class="text-sm">Menu bar icon</span><span class="switch is-on" role="switch" aria-checked="true" tabindex="0"><i></i></span></label>
+                <label class="switch-row"><span class="text-sm">Start at login</span><span class="switch" role="switch" aria-checked="false" tabindex="0"><i></i></span></label>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PLAIN LANGUAGE ============ -->
+    <section id="language" class="py-24 md:py-32 bg-paper-deep/60 border-y border-paper-line scroll-mt-20">
+      <div class="mx-auto max-w-shell px-6">
+        <div class="max-w-2xl mx-auto text-center">
+          <p class="eyebrow justify-center reveal">The translation layer</p>
+          <h2 class="font-display font-medium text-4xl md:text-5xl tracking-tight mt-4 reveal" style="--d:90ms">
+            Numbers in. Sense out.
+          </h2>
+          <p class="text-ink-soft text-lg leading-relaxed mt-5 reveal" style="--d:180ms">
+            Raw metrics never mix with human judgment. Wren reads the machine, weighs the
+            signals, then writes a sentence — the facts stay exact and the tone stays calm.
+          </p>
+        </div>
+
+        <div class="pipeline mt-16">
+          <div class="pipe-card reveal">
+            <p class="pipe-step">1 · The raw metric</p>
+            <p class="pipe-mono font-mono">swapUsedBytes<br />= 1,800,000,000</p>
+            <p class="pipe-note">Exact, and meaningless to most people.</p>
+          </div>
+          <div class="pipe-arrow reveal" style="--d:120ms" aria-hidden="true">
+            <svg viewBox="0 0 48 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h40M34 4l8 8-8 8"/></svg>
+          </div>
+          <div class="pipe-card reveal" style="--d:200ms">
+            <p class="pipe-step">2 · The interpretation</p>
+            <p class="pipe-text">"Swap is in use, but memory pressure is currently normal."</p>
+            <p class="pipe-note">Signals weighed: pressure, swap growth, compression, load over time.</p>
+          </div>
+          <div class="pipe-arrow reveal" style="--d:320ms" aria-hidden="true">
+            <svg viewBox="0 0 48 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h40M34 4l8 8-8 8"/></svg>
+          </div>
+          <div class="pipe-card pipe-card-final reveal" style="--d:400ms">
+            <p class="pipe-step">3 · What Wren tells you</p>
+            <p class="pipe-text pipe-final-text">"Your Mac is managing memory normally."</p>
+            <p class="pipe-note">Calm about what is normal. Plain about what is not. Never alarming for effect.</p>
+          </div>
+        </div>
+
+        <p class="text-center text-ink-soft mt-12 max-w-2xl mx-auto reveal" style="--d:200ms">
+          Low free RAM is not, by itself, a problem — macOS fills idle memory with cache on
+          purpose. Wren knows that, so it won't cry wolf over a number that looks scary but isn't.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ ANSWERS / FAQ ============ -->
+    <section id="answers" class="py-24 md:py-32 scroll-mt-20">
+      <div class="mx-auto max-w-shell px-6">
+        <div class="grid lg:grid-cols-12 gap-12">
+          <div class="lg:col-span-5">
+            <p class="eyebrow reveal">Honest answers</p>
+            <h2 class="font-display font-medium text-4xl md:text-5xl tracking-tight mt-4 reveal" style="--d:90ms">
+              The questions everyone actually asks.
+            </h2>
+            <p class="text-ink-soft text-lg leading-relaxed mt-5 reveal" style="--d:180ms">
+              Wren exists to answer everyday questions about your Mac without drama —
+              and to say nothing at all when there's nothing to say.
+            </p>
+          </div>
+          <div class="lg:col-span-7 space-y-3">
+            <details class="acc reveal" open>
+              <summary>Is my Mac running normally?<span class="acc-icon" aria-hidden="true"></span></summary>
+              <div class="acc-body"><div class="acc-inner">
+                The Overview tab weighs CPU, memory pressure, swap, disk, and network into a
+                single green, amber, or red state — then says it in a sentence. Green means
+                you can go back to what you were doing.
+              </div></div>
+            </details>
+            <details class="acc reveal" style="--d:80ms">
+              <summary>What is making my Mac feel slow?<span class="acc-icon" aria-hidden="true"></span></summary>
+              <div class="acc-body"><div class="acc-inner">
+                The Apps tab groups processes into the apps they belong to — so twelve
+                "Safari Web Content" rows read as one Safari — sorts by what's actually
+                costing you, and offers a guarded Quit for the heavy ones.
+              </div></div>
+            </details>
+            <details class="acc reveal" style="--d:160ms">
+              <summary>Is high RAM usage actually a problem?<span class="acc-icon" aria-hidden="true"></span></summary>
+              <div class="acc-body"><div class="acc-inner">
+                Usually not. macOS puts idle memory to work as cache, so "free" RAM is
+                supposed to look low. Wren watches memory pressure, swap growth, and
+                sustained load instead — the signals that actually mean something.
+              </div></div>
+            </details>
+            <details class="acc reveal" style="--d:240ms">
+              <summary>What on earth is kernel_task?<span class="acc-icon" aria-hidden="true"></span></summary>
+              <div class="acc-body"><div class="acc-inner">
+                The Wiki is a searchable, plain-language field guide to the processes people
+                don't recognise — reachable from its own tab or from a "What is this?"
+                button on any process row.
+              </div></div>
+            </details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ DOWNLOAD ============ -->
+    <section id="download" class="py-24 md:py-32 scroll-mt-20">
+      <div class="mx-auto max-w-shell px-6">
+        <div class="download-panel reveal">
+          <div class="blob blob-teal blob-sm" aria-hidden="true"></div>
+          <div class="grid lg:grid-cols-12 gap-10 items-center relative">
+            <div class="lg:col-span-7">
+              <img src="assets/app-icon.png" alt="Wren app icon" class="w-16 h-16 rounded-[18px] shadow-md mb-6" />
+              <h2 class="font-display font-medium text-4xl md:text-5xl tracking-tight">
+                Download Wren
+              </h2>
+              <p class="text-ink-soft text-lg leading-relaxed mt-4 max-w-lg">
+                Free and open source. Drag it into Applications, and it starts watching
+                quietly from your menu bar.
+              </p>
+              <ul class="mt-6 space-y-2 text-sm text-ink-soft">
+                <li class="flex items-center gap-2.5"><i class="tick"></i>macOS 14 Sonoma or later</li>
+                <li class="flex items-center gap-2.5"><i class="tick"></i>Apple Silicon DMG · every release ships with a SHA-256 checksum</li>
+                <li class="flex items-center gap-2.5"><i class="tick"></i>Intel or universal? Build from source with one command</li>
+              </ul>
+              <details class="acc acc-lite mt-6 max-w-lg">
+                <summary>Gatekeeper says the developer "cannot be verified"?<span class="acc-icon" aria-hidden="true"></span></summary>
+                <div class="acc-body"><div class="acc-inner">
+                  Expected — Wren is ad-hoc signed rather than notarized with a paid Apple
+                  Developer ID. Control-click the app, choose <b>Open</b>, then <b>Open</b>
+                  again. Or: System Settings → Privacy &amp; Security → <b>Open Anyway</b>.
+                </div></div>
+              </details>
+            </div>
+            <div class="lg:col-span-5">
+              <div class="dl-card">
+                <p class="font-mono text-xs text-ink-faint uppercase tracking-widest">Latest release</p>
+                <p class="font-display text-3xl font-medium mt-2">Wren 2.5.0</p>
+                <p class="text-sm text-ink-soft mt-1">macOS 14+ · Apple Silicon · DMG</p>
+                <a href="https://github.com/lajoonpark/Wren/releases/latest" target="_blank" rel="noopener" class="btn-primary w-full justify-center mt-6">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Get the latest DMG
+                </a>
+                <a href="https://github.com/lajoonpark/Wren" target="_blank" rel="noopener" class="btn-ghost w-full justify-center mt-3">View source on GitHub</a>
+                <p class="text-xs text-ink-faint mt-4 text-center">No account, no tracking, no cost.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="border-t border-paper-line py-14">
+    <div class="mx-auto max-w-shell px-6">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+        <div class="flex items-center gap-3">
+          <img src="assets/app-icon.png" alt="" class="w-9 h-8 rounded-[9px]" />
+          <div>
+            <p class="font-display font-medium text-lg leading-tight">Wren</p>
+            <p class="text-sm text-ink-faint">Watches quietly. Speaks up only when something matters.</p>
+          </div>
+        </div>
+        <nav class="flex flex-wrap gap-x-7 gap-y-2 text-sm text-ink-soft">
+          <a href="https://github.com/lajoonpark/Wren" target="_blank" rel="noopener" class="nav-link">GitHub</a>
+          <a href="https://github.com/lajoonpark/Wren/releases" target="_blank" rel="noopener" class="nav-link">Releases</a>
+          <a href="https://github.com/lajoonpark/Wren/issues" target="_blank" rel="noopener" class="nav-link">Issues</a>
+          <a href="#features" class="nav-link">Features</a>
+          <a href="#download" class="nav-link">Download</a>
+        </nav>
+      </div>
+      <div class="pulse-divider mt-10" aria-hidden="true">
+        <svg viewBox="0 0 640 40" preserveAspectRatio="none" class="w-full h-8">
+          <path id="pulse-path" d="M0,20 H200 l10,-12 16,26 12,-22 8,8 H440 l10,-12 16,26 12,-22 8,8 H640" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <p class="text-xs text-ink-faint mt-8">
+        Wren is built with SwiftUI and no third-party dependencies. This page is plain HTML, CSS, and JavaScript — practising what it preaches.
+      </p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
